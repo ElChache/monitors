@@ -86,35 +86,35 @@ Break down larger testing tasks into 1-3 hour chunks for better coordination.
 **⚠️ CRITICAL FIRST STEP**: Read and follow `coordination/AGENT_ISOLATION_PROTOCOL.md` to set up your isolated git worktree and Docker environment. This prevents conflicts with other agents working simultaneously.
 
 ### Phase 1: Preparation Phase
-**Dependencies**: MUST wait for Lead Developer's `coordination/TECHNICAL_STANDARDS.md`, `coordination/DEVELOPMENT_ENVIRONMENT_SETUP.md`, `coordination/IMPLEMENTATION_PLAN.md`, and `coordination/QA_TASKS.md`
+**Dependencies**: MUST wait for Lead Developer's `coordination/TECHNICAL_STANDARDS.md`, `coordination/agent_output/DEVELOPMENT_ENVIRONMENT_SETUP.md`, `coordination/agent_output/IMPLEMENTATION_PLAN.md`, and `coordination/agent_output/QA_TASKS.md`
 
 **Workflow**:
 1. **Wait for required documents** - Periodically check these files until they exist and contain "DOCUMENT COMPLETE" at the end:
    - `coordination/TECHNICAL_STANDARDS.md`
-   - `coordination/DEVELOPMENT_ENVIRONMENT_SETUP.md`
-   - `coordination/IMPLEMENTATION_PLAN.md`
-   - `coordination/QA_TASKS.md`
+   - `coordination/agent_output/DEVELOPMENT_ENVIRONMENT_SETUP.md`
+   - `coordination/agent_output/IMPLEMENTATION_PLAN.md`
+   - `coordination/agent_output/QA_TASKS.md`
    Do not proceed to step 2 until all documents are complete.
 2. **Study technical standards document** - Read `coordination/TECHNICAL_STANDARDS.md` to understand coding standards, architecture patterns, and testing requirements
-3. **Study development environment setup** - Read `coordination/DEVELOPMENT_ENVIRONMENT_SETUP.md` to configure your local testing environment correctly
-4. **Review implementation plan** - Read `coordination/IMPLEMENTATION_PLAN.md` to understand overall project architecture and how QA testing fits
-5. **Review your task list** - Read `coordination/QA_TASKS.md` to see all your specific QA tasks assigned by Lead Developer
+3. **Study development environment setup** - Read `coordination/agent_output/DEVELOPMENT_ENVIRONMENT_SETUP.md` to configure your local testing environment correctly
+4. **Review implementation plan** - Read `coordination/agent_output/IMPLEMENTATION_PLAN.md` to understand overall project architecture and how QA testing fits
+5. **Review your task list** - Read `coordination/agent_output/QA_TASKS.md` to see all your specific QA tasks assigned by Lead Developer
 6. **Set up testing environment** - Configure testing tools and validation environment according to specifications in both technical documents
-7. **Create test datasets** - Develop comprehensive test scenarios for system validation based on requirements in `coordination/QA_TASKS.md`
+7. **Create test datasets** - Develop comprehensive test scenarios for system validation based on requirements in `coordination/agent_output/QA_TASKS.md`
 8. **Prepare for testing** - Ensure you understand the standards, environment setup, overall plan, and specific tasks before moving to Phase 2
 
 ### Phase 2: Implementation Phase
-**Workflow**: Iterative feedback loop with Lead Developer using `coordination/QA_TASKS.md`
+**Workflow**: Iterative feedback loop with Lead Developer using `coordination/agent_output/QA_TASKS.md`
 
 **Step 1: Pick Next Task**
 - **First Priority**: Monitor ALL TASKS files for work needing QA testing:
-  - Check `coordination/BE_TASKS.md` for tasks with status "needs qa"
-  - Check `coordination/FE_TASKS.md` for tasks with status "needs qa"  
-  - Check `coordination/AI_TASKS.md` for tasks with status "needs qa"
-  - Check `coordination/UX_TASKS.md` for tasks with status "needs qa"
-  - Check `coordination/GD_TASKS.md` for tasks with status "needs qa"
-- **Second Priority**: Review `coordination/QA_TASKS.md` for your assigned QA tasks with status "ready"
-- Follow `coordination/COMMUNICATION_PROTOCOL.md` for complete task status management instructions
+  - Check `coordination/agent_output/BE_TASKS.md` for tasks with status "needs qa"
+  - Check `coordination/agent_output/FE_TASKS.md` for tasks with status "needs qa"  
+  - Check `coordination/agent_output/AI_TASKS.md` for tasks with status "needs qa"
+  - Check `coordination/agent_output/UX_TASKS.md` for tasks with status "needs qa"
+  - Check `coordination/agent_output/GD_TASKS.md` for tasks with status "needs qa"
+- **Second Priority**: Review `coordination/agent_output/QA_TASKS.md` for your assigned QA tasks with status "ready"
+- Follow `coordination/agent_output/COMMUNICATION_PROTOCOL.md` for complete task status management instructions
 - Prioritize testing "needs qa" tasks from other developers before working on your own QA tasks
 - If there are no tasks needing testing and no QA tasks with "ready" status, wait some minutes and read all files again.
 
@@ -125,54 +125,54 @@ Break down larger testing tasks into 1-3 hour chunks for better coordination.
 - **When bugs are found during testing:**
   1. Determine which team should fix the bug (BE, FE, AI, UX, GD)
   2. File the bug in the appropriate TASKS file:
-     - Backend bugs → `coordination/BE_TASKS.md`
-     - Frontend bugs → `coordination/FE_TASKS.md`
-     - AI-related bugs → `coordination/AI_TASKS.md`
-     - UX design bugs → `coordination/UX_TASKS.md`
-     - Visual/branding bugs → `coordination/GD_TASKS.md`
+     - Backend bugs → `coordination/agent_output/BE_TASKS.md`
+     - Frontend bugs → `coordination/agent_output/FE_TASKS.md`
+     - AI-related bugs → `coordination/agent_output/AI_TASKS.md`
+     - UX design bugs → `coordination/agent_output/UX_TASKS.md`
+     - Visual/branding bugs → `coordination/agent_output/GD_TASKS.md`
   3. Use format "Bug: [description]" and set initial status as "ready"
 
 **Step 3: Submit for Review**
-- Update task status in `coordination/QA_TASKS.md` to "needs review"
+- Update task status in `coordination/agent_output/QA_TASKS.md` to "needs review"
 - Add completion details to the same task entry - include test results, validation evidence, issue reports
 - Demonstrate functionality - provide evidence that testing was thorough, issues were identified, quality standards met
 
 **Step 4: Review Response**
-- **Wait for Lead Developer review** - Check `coordination/QA_TASKS.md` periodically for status updates on your submitted task
+- **Wait for Lead Developer review** - Check `coordination/agent_output/QA_TASKS.md` periodically for status updates on your submitted task
 - **Monitor task status** - Continue checking the file every few minutes until Lead Developer updates the task status and adds review notes
 - **If Lead Developer marks status as "approved"**: Move to Step 1 for next task
 - **If Lead Developer marks status as "changes requested"**: Address feedback notes and return to Step 2
-- **All communication happens in the task entry** within `coordination/QA_TASKS.md`
+- **All communication happens in the task entry** within `coordination/agent_output/QA_TASKS.md`
 - **Do not proceed to other tasks** until current task review is complete
 
 **Step 5: Iterate**
-- Continue this cycle until all QA tasks in `coordination/QA_TASKS.md` are marked "approved"
+- Continue this cycle until all QA tasks in `coordination/agent_output/QA_TASKS.md` are marked "approved"
 - Each task must be individually approved before being considered complete
 
 ## Collaboration Notes
 
-**Communication Method**: Follow `coordination/COMMUNICATION_PROTOCOL.md` for detailed forum system instructions on how to coordinate with other team members.
+**Communication Method**: Follow `coordination/agent_output/COMMUNICATION_PROTOCOL.md` for detailed forum system instructions on how to coordinate with other team members.
 
 ### With Lead Developer
-- Request guidance on quality standards and testing priorities via `coordination/FORUM.md`
+- Request guidance on quality standards and testing priorities via `coordination/agent_output/FORUM.md`
 - Escalate critical bugs and quality issues requiring immediate attention
 - Coordinate on release readiness decisions and deployment approval
 - Seek clarification on testing requirements and acceptance criteria
 
 ### With Backend Developers
-- Validate API endpoints and database operations via `coordination/FORUM.md`
+- Validate API endpoints and database operations via `coordination/agent_output/FORUM.md`
 - Test error handling and performance under load
 - Verify authentication and authorization systems
 - Coordinate on test data and environment setup
 
 ### With Frontend Developers
-- Test end-to-end user workflows across UI and API via `coordination/FORUM.md`
+- Test end-to-end user workflows across UI and API via `coordination/agent_output/FORUM.md`
 - Validate responsive behavior and accessibility features
 - Test error states and user feedback systems
 - Coordinate on integration testing scenarios
 
 ### With AI Developers
-- Test AI provider integration and fallback mechanisms via `coordination/FORUM.md`
+- Test AI provider integration and fallback mechanisms via `coordination/agent_output/FORUM.md`
 - Validate AI response accuracy and error handling
 - Test cost optimization and performance metrics
 - Coordinate on AI system testing strategies

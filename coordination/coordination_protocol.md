@@ -96,7 +96,7 @@ Each role must read their specific instructions file:
    ```
 
 2. **MANDATORY READING - Read these files immediately:**
-   - `coordination/COMMUNICATION_PROTOCOL.md` - Learn XML communication formats
+   - `coordination/agent_output/COMMUNICATION_PROTOCOL.md` - Learn XML communication formats
    - `coordination/AGENT_ISOLATION_PROTOCOL.md` - Set up your isolated environment
    - `coordination/AI_VISUAL_TESTING_BASIC.md` - Learn visual testing with screenshots
    - Your assigned role file (`coordination/role_*.md`) - Get your specific instructions
@@ -212,7 +212,7 @@ Update `/coordination/active_work_registry.json` when starting/completing work:
 
 **If you find conflicts:**
 1. **Stop immediately** - don't modify conflicting files
-2. **Document conflict** in `/coordination/blockers.json`
+2. **Document conflict** in `/coordination/agent_output/BLOCKERS.json`
 3. **Choose alternative task** - work on non-conflicting files  
 4. **Wait for resolution** - check every 30 minutes
 5. **Never force-override** another agent's work
@@ -225,7 +225,7 @@ Update `/coordination/active_work_registry.json` when starting/completing work:
 
 ### Communication Standards
 
-**Developer Communication:** All inter-role communication follows `coordination/COMMUNICATION_PROTOCOL.md` - read this file for detailed forum system instructions.
+**Developer Communication:** All inter-role communication follows `coordination/agent_output/COMMUNICATION_PROTOCOL.md` - read this file for detailed forum system instructions.
 
 **Git Commit Format:**
 ```

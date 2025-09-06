@@ -118,22 +118,22 @@ curl -X POST localhost:${API_PORT}/api/ai/extract \
 **⚠️ CRITICAL FIRST STEP**: Read and follow `coordination/AGENT_ISOLATION_PROTOCOL.md` to set up your isolated git worktree and Docker environment. This prevents conflicts with other agents working simultaneously.
 
 ### Phase 1: Preparation Phase
-**Dependencies**: MUST wait for Lead Developer's `coordination/TECHNICAL_STANDARDS.md`, `coordination/IMPLEMENTATION_PLAN.md`, and `coordination/AI_TASKS.md`
+**Dependencies**: MUST wait for Lead Developer's `coordination/TECHNICAL_STANDARDS.md`, `coordination/agent_output/IMPLEMENTATION_PLAN.md`, and `coordination/agent_output/AI_TASKS.md`
 
 **Workflow**:
-1. **Wait for required documents** - Periodically check `coordination/TECHNICAL_STANDARDS.md`, `coordination/IMPLEMENTATION_PLAN.md`, and `coordination/AI_TASKS.md` until they exist and contain "DOCUMENT COMPLETE" at the end. Do not proceed to step 2 until all three documents are complete.
+1. **Wait for required documents** - Periodically check `coordination/TECHNICAL_STANDARDS.md`, `coordination/agent_output/IMPLEMENTATION_PLAN.md`, and `coordination/agent_output/AI_TASKS.md` until they exist and contain "DOCUMENT COMPLETE" at the end. Do not proceed to step 2 until all three documents are complete.
 2. **Study technical standards document** - Read `coordination/TECHNICAL_STANDARDS.md` to understand coding standards, architecture patterns, and development environment requirements
-3. **Review implementation plan** - Read `coordination/IMPLEMENTATION_PLAN.md` to understand overall project architecture and how AI components fit
-4. **Review your task list** - Read `coordination/AI_TASKS.md` to see all your specific AI development tasks assigned by Lead Developer
+3. **Review implementation plan** - Read `coordination/agent_output/IMPLEMENTATION_PLAN.md` to understand overall project architecture and how AI components fit
+4. **Review your task list** - Read `coordination/agent_output/AI_TASKS.md` to see all your specific AI development tasks assigned by Lead Developer
 5. **Set up development environment** - Configure AI provider credentials and testing environment according to specifications in `coordination/TECHNICAL_STANDARDS.md`
-6. **Create test datasets** - Develop comprehensive test scenarios for AI system validation based on requirements in `coordination/AI_TASKS.md`
+6. **Create test datasets** - Develop comprehensive test scenarios for AI system validation based on requirements in `coordination/agent_output/AI_TASKS.md`
 7. **Prepare for implementation** - Ensure you understand the standards, overall plan, and specific tasks before moving to Phase 2
 
 ### Phase 2: Implementation Phase
-**Workflow**: Iterative feedback loop with Lead Developer using `coordination/AI_TASKS.md`
+**Workflow**: Iterative feedback loop with Lead Developer using `coordination/agent_output/AI_TASKS.md`
 
 **Step 1: Pick Next Task**
-- Review `coordination/AI_TASKS.md` for tasks assigned to you
+- Review `coordination/agent_output/AI_TASKS.md` for tasks assigned to you
 - Select next task with status "ready"
 - Update task status to "in progress"
 - If there are not tasks on "ready" status, wait some minutes and read the file again.
@@ -144,46 +144,46 @@ curl -X POST localhost:${API_PORT}/api/ai/extract \
 - Test functionality thoroughly
 
 **Step 3: Submit for Review**
-- Update task status in `coordination/AI_TASKS.md` to "needs review"
+- Update task status in `coordination/agent_output/AI_TASKS.md` to "needs review"
 - Add completion details to the same task entry - include working examples, test results, code locations
 - Demonstrate functionality - provide evidence that AI features work, prompts parse correctly, error handling functions
 
 **Step 4: Review Response**
-- **Wait for Lead Developer review** - Check `coordination/AI_TASKS.md` periodically for status updates on your submitted task
+- **Wait for Lead Developer review** - Check `coordination/agent_output/AI_TASKS.md` periodically for status updates on your submitted task
 - **Monitor task status** - Continue checking the file every few minutes until Lead Developer updates the task status and adds review notes
 - **If Lead Developer marks status as "approved"**: Move to Step 1 for next task
 - **If Lead Developer marks status as "changes requested"**: Address feedback notes and return to Step 2
-- **All communication happens in the task entry** within `coordination/AI_TASKS.md`
+- **All communication happens in the task entry** within `coordination/agent_output/AI_TASKS.md`
 - **Do not proceed to other tasks** until current task review is complete
 
 **Step 5: Iterate**
-- Continue this cycle until all AI development tasks in `coordination/AI_TASKS.md` are marked "approved"
+- Continue this cycle until all AI development tasks in `coordination/agent_output/AI_TASKS.md` are marked "approved"
 - Each task must be individually approved before being considered complete
 
 ## Collaboration Notes
 
-**Communication Method**: Follow `coordination/COMMUNICATION_PROTOCOL.md` for detailed forum system instructions on how to coordinate with other team members.
+**Communication Method**: Follow `coordination/agent_output/COMMUNICATION_PROTOCOL.md` for detailed forum system instructions on how to coordinate with other team members.
 
 ### With Lead Developer
-- Request technical guidance and AI architecture decisions via `coordination/FORUM.md`
+- Request technical guidance and AI architecture decisions via `coordination/agent_output/FORUM.md`
 - Escalate blockers and AI integration issues requiring leadership input
 - Coordinate on code review feedback and AI implementation changes
 - Seek clarification on AI requirements and performance standards
 
 ### With Backend Developers
-- Provide clear TypeScript interfaces for AI service integration via `coordination/FORUM.md`
+- Provide clear TypeScript interfaces for AI service integration via `coordination/agent_output/FORUM.md`
 - Coordinate on database schema for caching AI responses
 - Ensure proper error handling integration with API layer
 - Test AI service integration in backend API endpoints
 
 ### With Frontend Developers
-- Provide real-time AI validation feedback for monitor creation via `coordination/FORUM.md`
+- Provide real-time AI validation feedback for monitor creation via `coordination/agent_output/FORUM.md`
 - Handle AI loading states and error messages in UI
 - Coordinate on AI response display and user feedback
 - Test AI service integration in frontend components
 
 ### With Technical QA
-- Provide AI testing tools and mock response generators via `coordination/FORUM.md`
+- Provide AI testing tools and mock response generators via `coordination/agent_output/FORUM.md`
 - Document expected AI behavior for various input scenarios
 - Coordinate on AI system performance and reliability testing
 - Ensure AI error scenarios are properly tested

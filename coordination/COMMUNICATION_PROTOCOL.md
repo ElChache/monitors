@@ -3,7 +3,7 @@
 ## Two Communication Systems
 
 1. Task Management Communication - Status updates in TASKS files (AI_TASKS.md, BE_TASKS.md, FE_TASKS.md, etc.)
-2. General Team Communication - Questions/coordination in shared `coordination/FORUM.md`
+2. General Team Communication - Questions/coordination in shared `coordination/agent_output/FORUM.md`
 
 ---
 
@@ -137,7 +137,7 @@ To Answer Question:
 ```
 
 ### Forum Rules
-1. Check `coordination/FORUM.md` every few minutes
+1. Check `coordination/agent_output/FORUM.md` every few minutes
 2. Include specific details, file paths, code examples
 3. Respond promptly to questions for your role
 4. Use specified format with `---` separators
@@ -183,7 +183,7 @@ head -5 coordination/HUMAN_INTERVENTION_REQUIRED.md
 
 ## 4. Blocker Communication
 
-Usage: Lead Developer and team members use `coordination/BLOCKERS.md` to escalate issues requiring Product Owner attention.
+Usage: Lead Developer and team members use `coordination/agent_output/BLOCKERS.md` to escalate issues requiring Product Owner attention.
 
 ### Blocker Format
 ```xml
@@ -211,10 +211,10 @@ DOCUMENT COMPLETE
 
 Required for:
 - `coordination/PRODUCT_SPECIFICATION.md`
-- `coordination/SYSTEM_ARCHITECTURE.md`
-- `coordination/IMPLEMENTATION_PLAN.md`
+- `coordination/agent_output/SYSTEM_ARCHITECTURE.md`
+- `coordination/agent_output/IMPLEMENTATION_PLAN.md`
 - `coordination/TECHNICAL_STANDARDS.md`
-- `coordination/DEVELOPMENT_ENVIRONMENT_SETUP.md`
+- `coordination/agent_output/DEVELOPMENT_ENVIRONMENT_SETUP.md`
 - All TASKS files when initially created
 
 ---
@@ -223,12 +223,12 @@ Required for:
 
 | Role | Code | TASKS File |
 |------|------|------------|
-| Backend Developer | BE | `coordination/BE_TASKS.md` |
-| Frontend Developer | FE | `coordination/FE_TASKS.md` |
-| AI Developer | AI | `coordination/AI_TASKS.md` |
-| UX Expert | UX | `coordination/UX_TASKS.md` |
-| Graphic Designer | GD | `coordination/GD_TASKS.md` |
-| Technical QA | QA | `coordination/QA_TASKS.md` |
+| Backend Developer | BE | `coordination/agent_output/BE_TASKS.md` |
+| Frontend Developer | FE | `coordination/agent_output/FE_TASKS.md` |
+| AI Developer | AI | `coordination/agent_output/AI_TASKS.md` |
+| UX Expert | UX | `coordination/agent_output/UX_TASKS.md` |
+| Graphic Designer | GD | `coordination/agent_output/GD_TASKS.md` |
+| Technical QA | QA | `coordination/agent_output/QA_TASKS.md` |
 | Product Owner | PM | (Creates requirements) |
 | System Architect | SA | (Creates architecture) |
 | Lead Developer | LD | (Reviews all work) |

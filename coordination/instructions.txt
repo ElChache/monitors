@@ -3,39 +3,39 @@
 ## Document Overview
 
 ### Human Input Documents
-- `HUMAN_PROJECT_SPECIFICATION.md` - Your initial project concept (YOU create this first)
+- `coordination/HUMAN_PROJECT_SPECIFICATION.md` - Your initial project concept (YOU create this first)
 
 ### Master Product Documents  
-- `PROJECT_SPECIFICATION.md` - Comprehensive product specs (Product Owner creates from your input)
-- `PRODUCT_CLARIFICATIONS.md` - XML dialogue between you and Product Owner (Phase 1)
+- `coordination/PROJECT_SPECIFICATION.md` - Comprehensive product specs (Product Owner creates from your input)
 
 ### Architecture & Planning Documents
-- `coordination/SYSTEM_ARCHITECTURE.md` - Complete technical architecture (System Architect)
-- `coordination/IMPLEMENTATION_PLAN.md` - Development roadmap (System Architect)
+- `coordination/agent_output/SYSTEM_ARCHITECTURE.md` - Complete technical architecture (System Architect)
+- `coordination/agent_output/IMPLEMENTATION_PLAN.md` - Development roadmap (System Architect)
 - `coordination/TECHNICAL_STANDARDS.md` - Development guidelines (Lead Developer)
-- `coordination/DEVELOPMENT_ENVIRONMENT_SETUP.md` - Environment setup (Lead Developer)
+- `coordination/agent_output/DEVELOPMENT_ENVIRONMENT_SETUP.md` - Environment setup (Lead Developer)
 
 ### Design Documents
 - `coordination/UX_INTERFACE_SPECIFICATIONS.md` - UI/UX specifications (UX Expert)
 - `coordination/VISUAL_STYLE_GUIDE.md` - Visual design guide (Graphic Designer)
 
 ### Task Management Documents
-- `coordination/BE_TASKS.md` - Backend development tasks
-- `coordination/FE_TASKS.md` - Frontend development tasks  
-- `coordination/AI_TASKS.md` - AI integration tasks
-- `coordination/UX_TASKS.md` - User experience design tasks
-- `coordination/GD_TASKS.md` - Graphic design tasks
-- `coordination/QA_TASKS.md` - Quality assurance tasks
+- `coordination/agent_output/BE_TASKS.md` - Backend development tasks
+- `coordination/agent_output/FE_TASKS.md` - Frontend development tasks  
+- `coordination/agent_output/AI_TASKS.md` - AI integration tasks
+- `coordination/agent_output/UX_TASKS.md` - User experience design tasks
+- `coordination/agent_output/GD_TASKS.md` - Graphic design tasks
+- `coordination/agent_output/QA_TASKS.md` - Quality assurance tasks
 
 ### Communication Documents
-- `coordination/FORUM.md` - General team communication
-- `coordination/BLOCKERS.md` - Team blockers and questions
-- `coordination/ARCHITECT_REPORT.md` - System Architect progress reports
-- `coordination/LEAD_REPORT.md` - Lead Developer progress reports
+- `coordination/agent_output/PRODUCT_CLARIFICATIONS.md` - XML dialogue between you and Product Owner (Phase 1)
+- `coordination/agent_output/FORUM.md` - General team communication
+- `coordination/agent_output/BLOCKERS.md` - Team blockers and questions
+- `coordination/agent_output/ARCHITECT_REPORT.md` - System Architect progress reports
+- `coordination/agent_output/LEAD_REPORT.md` - Lead Developer progress reports
 - `coordination/HUMAN_INTERVENTION_REQUIRED.md` - Technical blockers requiring human action
 
 ### System Files
-- `coordination/COMMUNICATION_PROTOCOL.md` - Communication guidelines and formats
+- `coordination/agent_output/COMMUNICATION_PROTOCOL.md` - Communication guidelines and formats
 - `.nvmrc` - Node.js version specification
 
 ## Workflow Overview
@@ -49,8 +49,8 @@
 3. **Phase 3**: Monitors team and provides product guidance
 
 ### Step 3: System Architect 
-1. Creates technical architecture in `coordination/SYSTEM_ARCHITECTURE.md`
-2. Creates implementation plan in `coordination/IMPLEMENTATION_PLAN.md`  
+1. Creates technical architecture in `coordination/agent_output/SYSTEM_ARCHITECTURE.md`
+2. Creates implementation plan in `coordination/agent_output/IMPLEMENTATION_PLAN.md`  
 3. Creates all TASKS files with feature-level tickets
 4. Monitors progress and reports every 5 minutes
 

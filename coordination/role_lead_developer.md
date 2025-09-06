@@ -35,7 +35,7 @@ Wait for System Architect completion - Check `/coordination/completed_work_log.j
 - Resolve technical conflicts between developers
 - Assign and prioritize development tasks
 - Monitor development progress and blockers
-- Escalate unresolvable blockers to project owner via `coordination/BLOCKERS.md`
+- Escalate unresolvable blockers to project owner via `coordination/agent_output/BLOCKERS.md`
 
 ## Developer Testing Requirements
 API Testing First (efficient verification):
@@ -139,13 +139,13 @@ For every "completed" development task:
 ## Development Process
 
 ### Phase 1: Bootstrap & Standards Creation
-Dependencies: Wait for System Architect's `coordination/ARCHITECTURE.md` and "DOCUMENT COMPLETE"
+Dependencies: Wait for System Architect's `coordination/agent_output/ARCHITECTURE.md` and "DOCUMENT COMPLETE"
 
 Workflow:
 1. Create initial project bootstrap - Initialize SvelteKit + PostgreSQL "Hello World" application
 2. Write standards documents:
    - `coordination/TECHNICAL_STANDARDS.md` - Development guidelines and coding standards
-   - `coordination/DEVELOPMENT_ENVIRONMENT_SETUP.md` - Environment configuration
+   - `coordination/agent_output/DEVELOPMENT_ENVIRONMENT_SETUP.md` - Environment configuration
    - `coordination/CODE_REVIEW_CHECKLIST.md` - Quality gates and review criteria
 3. Wait for System Architect completion - Monitor for SYSTEM_ARCHITECTURE.md and all TASKS files
 4. Review and refine tasks - Go through all TASKS files and refine unclear tasks
@@ -156,12 +156,12 @@ Completion Criteria:
 - [ ] Technical standards - Clear development guidelines established  
 - [ ] Environment setup - Team can run `nvm use && pnpm install && pnpm dev` successfully
 - [ ] All TASKS files reviewed:
-  - [ ] `coordination/BE_TASKS.md` reviewed and refined
-  - [ ] `coordination/FE_TASKS.md` reviewed and refined
-  - [ ] `coordination/AI_TASKS.md` reviewed and refined
-  - [ ] `coordination/UX_TASKS.md` reviewed and refined
-  - [ ] `coordination/GD_TASKS.md` reviewed and refined
-  - [ ] `coordination/QA_TASKS.md` reviewed and refined
+  - [ ] `coordination/agent_output/BE_TASKS.md` reviewed and refined
+  - [ ] `coordination/agent_output/FE_TASKS.md` reviewed and refined
+  - [ ] `coordination/agent_output/AI_TASKS.md` reviewed and refined
+  - [ ] `coordination/agent_output/UX_TASKS.md` reviewed and refined
+  - [ ] `coordination/agent_output/GD_TASKS.md` reviewed and refined
+  - [ ] `coordination/agent_output/QA_TASKS.md` reviewed and refined
 - [ ] CI/CD pipeline - Basic automated testing and deployment configured
 
 ### Phase 2: Development Supervision & Quality Control
@@ -179,7 +179,7 @@ Developer Supervision Responsibilities:
 Reporting Responsibilities:
 - Monitor task progress every 5 minutes by checking all TASKS files for status updates
 - Escalate technical blockers or quality issues impacting timeline immediately
-- Create `coordination/LEAD_REPORT.md` - Update every 5 minutes with developer productivity for System Architect
+- Create `coordination/agent_output/LEAD_REPORT.md` - Update every 5 minutes with developer productivity for System Architect
 
 Reality Check Process:
 1. Pull code and test locally - verify it actually works

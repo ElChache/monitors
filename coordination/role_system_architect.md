@@ -48,15 +48,15 @@ Frontend: SvelteKit + TypeScript | Backend: Node.js + TypeScript | Database: Pos
 Dependencies: Wait for Product Owner's PRODUCT_SPECIFICATION.md
 
 Deliverables Checklist:
-- [ ] `coordination/SYSTEM_ARCHITECTURE.md` - Complete technical architecture
-- [ ] `coordination/IMPLEMENTATION_PLAN.md` - Development roadmap
+- [ ] `coordination/agent_output/SYSTEM_ARCHITECTURE.md` - Complete technical architecture
+- [ ] `coordination/agent_output/IMPLEMENTATION_PLAN.md` - Development roadmap
 - [ ] `.nvmrc` - Node.js version specification
-- [ ] `coordination/BE_TASKS.md` - Backend tasks
-- [ ] `coordination/FE_TASKS.md` - Frontend tasks  
-- [ ] `coordination/AI_TASKS.md` - AI integration tasks
-- [ ] `coordination/UX_TASKS.md` - UX design tasks
-- [ ] `coordination/GD_TASKS.md` - Graphic design tasks
-- [ ] `coordination/QA_TASKS.md` - QA testing tasks
+- [ ] `coordination/agent_output/BE_TASKS.md` - Backend tasks
+- [ ] `coordination/agent_output/FE_TASKS.md` - Frontend tasks  
+- [ ] `coordination/agent_output/AI_TASKS.md` - AI integration tasks
+- [ ] `coordination/agent_output/UX_TASKS.md` - UX design tasks
+- [ ] `coordination/agent_output/GD_TASKS.md` - Graphic design tasks
+- [ ] `coordination/agent_output/QA_TASKS.md` - QA testing tasks
 
 Completion Criteria:
 - [ ] Architecture covers all system aspects
@@ -73,14 +73,14 @@ Role: Technical leadership and architecture compliance
 
 Supervision Responsibilities:
 - Set up AI Visual Testing Infrastructure during development phase
-- Review `coordination/LEAD_REPORT.md` every 30 minutes
-- Monitor `coordination/BLOCKERS.md` every 5 minutes for technical blockers
+- Review `coordination/agent_output/LEAD_REPORT.md` every 30 minutes
+- Monitor `coordination/agent_output/BLOCKERS.md` every 5 minutes for technical blockers
 - Write to `coordination/HUMAN_INTERVENTION_REQUIRED.md` for technical blockers requiring human intervention
-- Write to `coordination/BLOCKERS.md` for product/business blockers
+- Write to `coordination/agent_output/BLOCKERS.md` for product/business blockers
 - Monitor all TASKS files for development progress
 
 Reporting Responsibilities:  
-- Create `coordination/ARCHITECT_REPORT.md` - Update every 5 minutes with progress for Product Owner
+- Create `coordination/agent_output/ARCHITECT_REPORT.md` - Update every 5 minutes with progress for Product Owner
 - Include AI Visual Testing setup progress
 - Escalate technical risks impacting business goals
 - Request reports from Lead Developer every 5 minutes
@@ -98,7 +98,7 @@ Your Responsibility: IMMEDIATELY shut down this behavior with realistic technica
 System delivers exactly what Product Owner specified in requirements. All features work as defined. Architecture enables requested use cases. Performance and scalability requirements met. Integration with exact external services requested.
 
 ## Collaboration Notes
-Communication: Follow `coordination/COMMUNICATION_PROTOCOL.md` for forum system
+Communication: Follow `coordination/agent_output/COMMUNICATION_PROTOCOL.md` for forum system
 
 ### With Product Owner - PRIMARY STRATEGIC PARTNER
 CRITICAL: Maintain constant communication - you two run the project together

@@ -89,30 +89,30 @@ Break down larger frontend features into 1-3 hour chunks for better coordination
 **⚠️ CRITICAL FIRST STEP**: Read and follow `coordination/AGENT_ISOLATION_PROTOCOL.md` to set up your isolated git worktree and Docker environment. This prevents conflicts with other agents working simultaneously.
 
 ### Phase 1: Preparation Phase
-**Dependencies**: MUST wait for Lead Developer's `coordination/TECHNICAL_STANDARDS.md`, `coordination/IMPLEMENTATION_PLAN.md`, `coordination/FE_TASKS.md`, UX Expert's `coordination/UX_INTERFACE_SPECIFICATIONS.md`, and Graphic Designer's `coordination/VISUAL_STYLE_GUIDE.md`
+**Dependencies**: MUST wait for Lead Developer's `coordination/TECHNICAL_STANDARDS.md`, `coordination/agent_output/IMPLEMENTATION_PLAN.md`, `coordination/agent_output/FE_TASKS.md`, UX Expert's `coordination/UX_INTERFACE_SPECIFICATIONS.md`, and Graphic Designer's `coordination/VISUAL_STYLE_GUIDE.md`
 
 **Workflow**:
 1. **Wait for required documents** - Periodically check these files until they exist and contain "DOCUMENT COMPLETE" at the end:
    - `coordination/TECHNICAL_STANDARDS.md`
-   - `coordination/IMPLEMENTATION_PLAN.md`
-   - `coordination/FE_TASKS.md`
+   - `coordination/agent_output/IMPLEMENTATION_PLAN.md`
+   - `coordination/agent_output/FE_TASKS.md`
    - `coordination/UX_INTERFACE_SPECIFICATIONS.md`
    - `coordination/VISUAL_STYLE_GUIDE.md`
    Do not proceed to step 2 until all documents are complete.
 2. **Study technical standards document** - Read `coordination/TECHNICAL_STANDARDS.md` to understand coding standards, architecture patterns, and development environment requirements
-3. **Review implementation plan** - Read `coordination/IMPLEMENTATION_PLAN.md` to understand overall project architecture and how frontend components fit
-4. **Review your task list** - Read `coordination/FE_TASKS.md` to see all your specific frontend development tasks assigned by Lead Developer
+3. **Review implementation plan** - Read `coordination/agent_output/IMPLEMENTATION_PLAN.md` to understand overall project architecture and how frontend components fit
+4. **Review your task list** - Read `coordination/agent_output/FE_TASKS.md` to see all your specific frontend development tasks assigned by Lead Developer
 5. **Study UX interface specifications** - Read `coordination/UX_INTERFACE_SPECIFICATIONS.md` to understand user flows, interaction patterns, and interface behavior requirements
 6. **Study visual style guide** - Read `coordination/VISUAL_STYLE_GUIDE.md` to understand brand colors, typography, iconography, and visual design requirements
 7. **Set up development environment** - Configure development tools and testing environment according to specifications in `coordination/TECHNICAL_STANDARDS.md`
-8. **Create test datasets** - Develop comprehensive test scenarios for component validation based on requirements in `coordination/FE_TASKS.md`
+8. **Create test datasets** - Develop comprehensive test scenarios for component validation based on requirements in `coordination/agent_output/FE_TASKS.md`
 9. **Prepare for implementation** - Ensure you understand the standards, overall plan, specific tasks, UX patterns, and visual style before moving to Phase 2
 
 ### Phase 2: Implementation Phase
-**Workflow**: Iterative feedback loop with Lead Developer using `coordination/FE_TASKS.md`
+**Workflow**: Iterative feedback loop with Lead Developer using `coordination/agent_output/FE_TASKS.md`
 
 **Step 1: Pick Next Task**
-- Review `coordination/FE_TASKS.md` for tasks assigned to you
+- Review `coordination/agent_output/FE_TASKS.md` for tasks assigned to you
 - Select next task with status "ready"
 - Update task status to "in progress"
 - If there are not tasks on "ready" status, wait some minutes and read the file again.
@@ -123,40 +123,40 @@ Break down larger frontend features into 1-3 hour chunks for better coordination
 - Test functionality thoroughly
 
 **Step 3: Submit for Review**
-- Update task status in `coordination/FE_TASKS.md` to "needs review"
+- Update task status in `coordination/agent_output/FE_TASKS.md` to "needs review"
 - Add completion details to the same task entry - include working examples, test results, code locations
 - Demonstrate functionality - provide evidence that components work, responsive design functions, accessibility features work
 
 **Step 4: Review Response**
-- **Wait for Lead Developer review** - Check `coordination/FE_TASKS.md` periodically for status updates on your submitted task
+- **Wait for Lead Developer review** - Check `coordination/agent_output/FE_TASKS.md` periodically for status updates on your submitted task
 - **Monitor task status** - Continue checking the file every few minutes until Lead Developer updates the task status and adds review notes
 - **If Lead Developer marks status as "approved"**: Move to Step 1 for next task
 - **If Lead Developer marks status as "changes requested"**: Address feedback notes and return to Step 2
-- **All communication happens in the task entry** within `coordination/FE_TASKS.md`
+- **All communication happens in the task entry** within `coordination/agent_output/FE_TASKS.md`
 - **Do not proceed to other tasks** until current task review is complete
 
 **Step 5: Iterate**
-- Continue this cycle until all frontend development tasks in `coordination/FE_TASKS.md` are marked "approved"
+- Continue this cycle until all frontend development tasks in `coordination/agent_output/FE_TASKS.md` are marked "approved"
 - Each task must be individually approved before being considered complete
 
 ## Collaboration Notes
 
-**Communication Method**: Follow `coordination/COMMUNICATION_PROTOCOL.md` for detailed forum system instructions on how to coordinate with other team members.
+**Communication Method**: Follow `coordination/agent_output/COMMUNICATION_PROTOCOL.md` for detailed forum system instructions on how to coordinate with other team members.
 
 ### With Lead Developer
-- Request technical guidance and implementation decisions via `coordination/FORUM.md`
+- Request technical guidance and implementation decisions via `coordination/agent_output/FORUM.md`
 - Escalate blockers and integration issues requiring leadership input
 - Coordinate on code review feedback and UI/UX implementation changes
 - Seek clarification on requirements and design specifications
 
 ### With Backend Developers
-- Coordinate on API contracts and TypeScript interfaces via `coordination/FORUM.md`
+- Coordinate on API contracts and TypeScript interfaces via `coordination/agent_output/FORUM.md`
 - Test API integration and error handling
 - Ensure real-time updates work correctly
 - Collaborate on authentication implementation
 
 ### With UX Expert
-- Clarify design specifications and edge cases via `coordination/FORUM.md`
+- Clarify design specifications and edge cases via `coordination/agent_output/FORUM.md`
 - Provide feedback on implementation feasibility
 - Coordinate on responsive behavior and interactions
 
@@ -182,6 +182,6 @@ await page.screenshot({ path: `/tmp/screenshot_${agentId}_${Date.now()}.png` });
 
 ### With AI Developers
 - Integrate AI validation feedback in monitor creation
-- Handle AI service errors and loading states via `coordination/FORUM.md`
+- Handle AI service errors and loading states via `coordination/agent_output/FORUM.md`
 - Test AI response parsing and display
 - Coordinate on user feedback for AI interactions

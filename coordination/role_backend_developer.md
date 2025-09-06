@@ -106,28 +106,28 @@ curl -X GET "localhost:${API_PORT}/api/users?limit=10"
 **⚠️ CRITICAL FIRST STEP**: Read and follow `coordination/AGENT_ISOLATION_PROTOCOL.md` to set up your isolated git worktree and Docker environment. This prevents conflicts with other agents working simultaneously.
 
 ### Phase 1: Preparation Phase
-**Dependencies**: MUST wait for Lead Developer's `coordination/TECHNICAL_STANDARDS.md`, `coordination/DEVELOPMENT_ENVIRONMENT_SETUP.md`, `coordination/IMPLEMENTATION_PLAN.md`, and `coordination/BE_TASKS.md`
+**Dependencies**: MUST wait for Lead Developer's `coordination/TECHNICAL_STANDARDS.md`, `coordination/agent_output/DEVELOPMENT_ENVIRONMENT_SETUP.md`, `coordination/agent_output/IMPLEMENTATION_PLAN.md`, and `coordination/agent_output/BE_TASKS.md`
 
 **Workflow**:
 1. **Wait for required documents** - Periodically check these files until they exist and contain "DOCUMENT COMPLETE" at the end:
    - `coordination/TECHNICAL_STANDARDS.md`
-   - `coordination/DEVELOPMENT_ENVIRONMENT_SETUP.md`
-   - `coordination/IMPLEMENTATION_PLAN.md`
-   - `coordination/BE_TASKS.md`
+   - `coordination/agent_output/DEVELOPMENT_ENVIRONMENT_SETUP.md`
+   - `coordination/agent_output/IMPLEMENTATION_PLAN.md`
+   - `coordination/agent_output/BE_TASKS.md`
    Do not proceed to step 2 until all documents are complete.
 2. **Study technical standards document** - Read `coordination/TECHNICAL_STANDARDS.md` to understand coding standards, architecture patterns, and development requirements
-3. **Study development environment setup** - Read `coordination/DEVELOPMENT_ENVIRONMENT_SETUP.md` to configure your local development environment correctly
-4. **Review implementation plan** - Read `coordination/IMPLEMENTATION_PLAN.md` to understand overall project architecture and how backend components fit
-5. **Review your task list** - Read `coordination/BE_TASKS.md` to see all your specific backend development tasks assigned by Lead Developer
+3. **Study development environment setup** - Read `coordination/agent_output/DEVELOPMENT_ENVIRONMENT_SETUP.md` to configure your local development environment correctly
+4. **Review implementation plan** - Read `coordination/agent_output/IMPLEMENTATION_PLAN.md` to understand overall project architecture and how backend components fit
+5. **Review your task list** - Read `coordination/agent_output/BE_TASKS.md` to see all your specific backend development tasks assigned by Lead Developer
 6. **Set up development environment** - Configure development tools and testing environment according to specifications in both technical documents
-7. **Create test datasets** - Develop comprehensive test scenarios for system validation based on requirements in `coordination/BE_TASKS.md`
+7. **Create test datasets** - Develop comprehensive test scenarios for system validation based on requirements in `coordination/agent_output/BE_TASKS.md`
 8. **Prepare for implementation** - Ensure you understand the standards, environment setup, overall plan, and specific tasks before moving to Phase 2
 
 ### Phase 2: Implementation Phase
-**Workflow**: Iterative feedback loop with Lead Developer using `coordination/BE_TASKS.md`
+**Workflow**: Iterative feedback loop with Lead Developer using `coordination/agent_output/BE_TASKS.md`
 
 **Step 1: Pick Next Task**
-- Review `coordination/BE_TASKS.md` for tasks assigned to you
+- Review `coordination/agent_output/BE_TASKS.md` for tasks assigned to you
 - Select next task with status "ready"
 - Update task status to "in progress"
 - If there are not tasks on "ready" status, wait some minutes and read the file again.
@@ -138,46 +138,46 @@ curl -X GET "localhost:${API_PORT}/api/users?limit=10"
 - Test functionality thoroughly
 
 **Step 3: Submit for Review**
-- Update task status in `coordination/BE_TASKS.md` to "needs review"
+- Update task status in `coordination/agent_output/BE_TASKS.md` to "needs review"
 - Add completion details to the same task entry - include working examples, test results, code locations
 - Demonstrate functionality - provide evidence that AI features work, prompts parse correctly, error handling functions
 
 **Step 4: Review Response**
-- **Wait for Lead Developer review** - Check `coordination/BE_TASKS.md` periodically for status updates on your submitted task
+- **Wait for Lead Developer review** - Check `coordination/agent_output/BE_TASKS.md` periodically for status updates on your submitted task
 - **Monitor task status** - Continue checking the file every few minutes until Lead Developer updates the task status and adds review notes
 - **If Lead Developer marks status as "approved"**: Move to Step 1 for next task
 - **If Lead Developer marks status as "changes requested"**: Address feedback notes and return to Step 2
-- **All communication happens in the task entry** within `coordination/BE_TASKS.md`
+- **All communication happens in the task entry** within `coordination/agent_output/BE_TASKS.md`
 - **Do not proceed to other tasks** until current task review is complete
 
 **Step 5: Iterate**
-- Continue this cycle until all backend development tasks in `coordination/BE_TASKS.md` are marked "approved"
+- Continue this cycle until all backend development tasks in `coordination/agent_output/BE_TASKS.md` are marked "approved"
 - Each task must be individually approved before being considered complete
 
 ## Collaboration Notes
 
-**Communication Method**: Follow `coordination/COMMUNICATION_PROTOCOL.md` for detailed forum system instructions on how to coordinate with other team members.
+**Communication Method**: Follow `coordination/agent_output/COMMUNICATION_PROTOCOL.md` for detailed forum system instructions on how to coordinate with other team members.
 
 ### With Lead Developer
-- Request technical guidance and architecture decisions via `coordination/FORUM.md`
+- Request technical guidance and architecture decisions via `coordination/agent_output/FORUM.md`
 - Escalate blockers and technical issues requiring leadership input
 - Coordinate on code review feedback and implementation changes
 - Seek clarification on requirements and technical standards
 
 ### With Frontend Developers
-- Provide API documentation and TypeScript interfaces via `coordination/FORUM.md`
+- Provide API documentation and TypeScript interfaces via `coordination/agent_output/FORUM.md`
 - Coordinate on data structures and response formats
 - Ensure real-time updates work correctly
 - Test integration between frontend and backend
 
 ### With AI Developers
-- Coordinate on AI provider abstraction interfaces via `coordination/FORUM.md`
+- Coordinate on AI provider abstraction interfaces via `coordination/agent_output/FORUM.md`
 - Ensure proper error handling for AI service failures
 - Optimize for AI response caching and performance
 - Test AI integration with various prompt types
 
 ### With Technical QA
-- Provide testing endpoints and tools via `coordination/FORUM.md`
+- Provide testing endpoints and tools via `coordination/agent_output/FORUM.md`
 - Document system behavior and expected responses
 - Coordinate on performance and load testing
 - Ensure system monitoring and observability

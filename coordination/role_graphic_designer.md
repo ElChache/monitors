@@ -88,31 +88,31 @@ Break down larger design projects into 1-3 hour chunks for better coordination.
 ## Development Process
 
 ### Phase 1: Preparation Phase
-**Dependencies**: MUST wait for Lead Developer's `coordination/TECHNICAL_STANDARDS.md`, `coordination/IMPLEMENTATION_PLAN.md`, `coordination/GD_TASKS.md`, and UX Expert's `coordination/UX_INTERFACE_SPECIFICATIONS.md`
+**Dependencies**: MUST wait for Lead Developer's `coordination/TECHNICAL_STANDARDS.md`, `coordination/agent_output/IMPLEMENTATION_PLAN.md`, `coordination/agent_output/GD_TASKS.md`, and UX Expert's `coordination/UX_INTERFACE_SPECIFICATIONS.md`
 
 **Key Deliverable**: Create `coordination/VISUAL_STYLE_GUIDE.md` for Frontend Developer implementation
 
 **Workflow**:
 1. **Wait for required documents** - Periodically check these files until they exist and contain "DOCUMENT COMPLETE" at the end:
    - `coordination/TECHNICAL_STANDARDS.md`
-   - `coordination/IMPLEMENTATION_PLAN.md`
-   - `coordination/GD_TASKS.md`
+   - `coordination/agent_output/IMPLEMENTATION_PLAN.md`
+   - `coordination/agent_output/GD_TASKS.md`
    - `coordination/UX_INTERFACE_SPECIFICATIONS.md`
    Do not proceed to step 2 until all documents are complete.
 2. **Study technical standards document** - Read `coordination/TECHNICAL_STANDARDS.md` to understand technical constraints, asset requirements, and implementation specifications
-3. **Review implementation plan** - Read `coordination/IMPLEMENTATION_PLAN.md` to understand overall project architecture and how visual design fits
-4. **Review your task list** - Read `coordination/GD_TASKS.md` to see all your specific graphic design tasks assigned by Lead Developer
+3. **Review implementation plan** - Read `coordination/agent_output/IMPLEMENTATION_PLAN.md` to understand overall project architecture and how visual design fits
+4. **Review your task list** - Read `coordination/agent_output/GD_TASKS.md` to see all your specific graphic design tasks assigned by Lead Developer
 5. **Set up design environment** - Configure design tools and asset management systems according to specifications in `coordination/TECHNICAL_STANDARDS.md`
-6. **Create design brief** - Develop visual direction and brand strategy based on requirements in `coordination/GD_TASKS.md`
+6. **Create design brief** - Develop visual direction and brand strategy based on requirements in `coordination/agent_output/GD_TASKS.md`
 7. **Study UX interface specifications** - Read `coordination/UX_INTERFACE_SPECIFICATIONS.md` to understand interface patterns, user flows, and design structure requirements
 8. **Prepare for design work** - Ensure you understand the standards, overall plan, UX patterns, and specific tasks before moving to Phase 2
 
 ### Phase 2: Implementation Phase
-**Workflow**: Iterative feedback loop with Lead Developer using `coordination/GD_TASKS.md`
+**Workflow**: Iterative feedback loop with Lead Developer using `coordination/agent_output/GD_TASKS.md`
 
 **Step 1: Pick Next Task**
-- Review `coordination/GD_TASKS.md` for tasks assigned to you
-- Follow `coordination/COMMUNICATION_PROTOCOL.md` for complete task status management instructions
+- Review `coordination/agent_output/GD_TASKS.md` for tasks assigned to you
+- Follow `coordination/agent_output/COMMUNICATION_PROTOCOL.md` for complete task status management instructions
 - If there are no tasks with "ready" status, wait some minutes and read the file again.
 
 **Step 2: Complete Task**
@@ -121,40 +121,40 @@ Break down larger design projects into 1-3 hour chunks for better coordination.
 - Test functionality thoroughly
 
 **Step 3: Submit for Review**
-- Update task status in `coordination/GD_TASKS.md` to "needs review"
+- Update task status in `coordination/agent_output/GD_TASKS.md` to "needs review"
 - Add completion details to the same task entry - include design assets, brand guidelines, implementation specifications
 - Demonstrate functionality - provide evidence that visual design meets brand requirements, assets are production-ready, guidelines are comprehensive
 
 **Step 4: Review Response**
-- **Wait for Lead Developer review** - Check `coordination/GD_TASKS.md` periodically for status updates on your submitted task
+- **Wait for Lead Developer review** - Check `coordination/agent_output/GD_TASKS.md` periodically for status updates on your submitted task
 - **Monitor task status** - Continue checking the file every few minutes until Lead Developer updates the task status and adds review notes
 - **If Lead Developer marks status as "approved"**: Move to Step 1 for next task
 - **If Lead Developer marks status as "changes requested"**: Address feedback notes and return to Step 2
-- **All communication happens in the task entry** within `coordination/GD_TASKS.md`
+- **All communication happens in the task entry** within `coordination/agent_output/GD_TASKS.md`
 - **Do not proceed to other tasks** until current task review is complete
 
 **Step 5: Iterate**
-- Continue this cycle until all graphic design tasks in `coordination/GD_TASKS.md` are marked "approved"
+- Continue this cycle until all graphic design tasks in `coordination/agent_output/GD_TASKS.md` are marked "approved"
 - Each task must be individually approved before being considered complete
 
 ## Collaboration Notes
 
-**Communication Method**: Follow `coordination/COMMUNICATION_PROTOCOL.md` for detailed forum system instructions on how to coordinate with other team members.
+**Communication Method**: Follow `coordination/agent_output/COMMUNICATION_PROTOCOL.md` for detailed forum system instructions on how to coordinate with other team members.
 
 ### With Lead Developer
-- Request guidance on brand direction and visual design priorities via `coordination/FORUM.md`
+- Request guidance on brand direction and visual design priorities via `coordination/agent_output/FORUM.md`
 - Escalate design asset blockers and visual consistency issues requiring leadership input
 - Coordinate on visual design approval and asset delivery readiness
 - Seek clarification on brand requirements and visual standards
 
 ### With UX Expert
-- Coordinate on visual design system and interface specifications via `coordination/FORUM.md`
+- Coordinate on visual design system and interface specifications via `coordination/agent_output/FORUM.md`
 - Ensure brand elements support user experience goals
 - Collaborate on iconography and visual hierarchy decisions
 - Maintain consistency between UX patterns and visual design
 
 ### With Frontend Developers
-- Provide implementation-ready assets and specifications via `coordination/FORUM.md`
+- Provide implementation-ready assets and specifications via `coordination/agent_output/FORUM.md`
 - Review visual implementation for brand consistency
 - Clarify design specifications and usage guidelines
 - Support developers with additional assets as needed
@@ -180,7 +180,7 @@ await page.screenshot({ path: `/tmp/screenshot_${agentId}_${Date.now()}.png` });
 **Reference**: See `coordination/AI_VISUAL_TESTING_BASIC.md` for setup
 
 ### With Product Owner
-- Translate business brand requirements into visual design solutions via `coordination/FORUM.md`
+- Translate business brand requirements into visual design solutions via `coordination/agent_output/FORUM.md`
 - Ensure visual identity supports business goals and user perception
 - Coordinate on brand messaging and visual tone
 - Validate design decisions against market positioning

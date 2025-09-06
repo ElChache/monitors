@@ -86,7 +86,7 @@ Break down larger design tasks into 1-3 hour chunks for better coordination.
 ## Development Process
 
 ### Phase 1: Preparation Phase
-**Dependencies**: MUST wait for Lead Developer's `coordination/TECHNICAL_STANDARDS.md`, `coordination/IMPLEMENTATION_PLAN.md`, and `coordination/UX_TASKS.md`
+**Dependencies**: MUST wait for Lead Developer's `coordination/TECHNICAL_STANDARDS.md`, `coordination/agent_output/IMPLEMENTATION_PLAN.md`, and `coordination/agent_output/UX_TASKS.md`
 
 **Key Deliverable**: Create `coordination/UX_INTERFACE_SPECIFICATIONS.md` for Frontend Developer implementation
 
@@ -129,19 +129,19 @@ Break down larger design tasks into 1-3 hour chunks for better coordination.
 - Integration points with backend APIs for UI updates
 
 **Workflow**:
-1. **Wait for required documents** - Periodically check `coordination/TECHNICAL_STANDARDS.md`, `coordination/IMPLEMENTATION_PLAN.md`, and `coordination/UX_TASKS.md` until they exist and contain "DOCUMENT COMPLETE" at the end. Do not proceed to step 2 until all three documents are complete.
+1. **Wait for required documents** - Periodically check `coordination/TECHNICAL_STANDARDS.md`, `coordination/agent_output/IMPLEMENTATION_PLAN.md`, and `coordination/agent_output/UX_TASKS.md` until they exist and contain "DOCUMENT COMPLETE" at the end. Do not proceed to step 2 until all three documents are complete.
 2. **Study technical standards document** - Read `coordination/TECHNICAL_STANDARDS.md` to understand design constraints, technical capabilities, and implementation requirements
-3. **Review implementation plan** - Read `coordination/IMPLEMENTATION_PLAN.md` to understand overall project architecture and how UX design fits
-4. **Review your task list** - Read `coordination/UX_TASKS.md` to see all your specific UX design tasks assigned by Lead Developer
+3. **Review implementation plan** - Read `coordination/agent_output/IMPLEMENTATION_PLAN.md` to understand overall project architecture and how UX design fits
+4. **Review your task list** - Read `coordination/agent_output/UX_TASKS.md` to see all your specific UX design tasks assigned by Lead Developer
 5. **Set up design environment** - Configure design tools and documentation systems according to specifications in `coordination/TECHNICAL_STANDARDS.md`
-6. **Create design foundation** - Develop design principles and user research insights based on requirements in `coordination/UX_TASKS.md`
+6. **Create design foundation** - Develop design principles and user research insights based on requirements in `coordination/agent_output/UX_TASKS.md`
 7. **Prepare for design work** - Ensure you understand the standards, overall plan, and specific tasks before moving to Phase 2
 
 ### Phase 2: Implementation Phase
-**Workflow**: Iterative feedback loop with Lead Developer using `coordination/UX_TASKS.md`
+**Workflow**: Iterative feedback loop with Lead Developer using `coordination/agent_output/UX_TASKS.md`
 
 **Step 1: Pick Next Task**
-- Review `coordination/UX_TASKS.md` for tasks assigned to you
+- Review `coordination/agent_output/UX_TASKS.md` for tasks assigned to you
 - Select next task with status "ready"
 - Update task status to "in progress"
 - If there are not tasks on "ready" status, wait some minutes and read the file again.
@@ -152,46 +152,46 @@ Break down larger design tasks into 1-3 hour chunks for better coordination.
 - Test functionality thoroughly
 
 **Step 3: Submit for Review**
-- Update task status in `coordination/UX_TASKS.md` to "needs review"
+- Update task status in `coordination/agent_output/UX_TASKS.md` to "needs review"
 - Add completion details to the same task entry - include design specifications, user journey documentation, accessibility compliance evidence
 - Demonstrate functionality - provide evidence that design solves user needs, follows accessibility standards, works responsively
 
 **Step 4: Review Response**
-- **Wait for Lead Developer review** - Check `coordination/UX_TASKS.md` periodically for status updates on your submitted task
+- **Wait for Lead Developer review** - Check `coordination/agent_output/UX_TASKS.md` periodically for status updates on your submitted task
 - **Monitor task status** - Continue checking the file every few minutes until Lead Developer updates the task status and adds review notes
 - **If Lead Developer marks status as "approved"**: Move to Step 1 for next task
 - **If Lead Developer marks status as "changes requested"**: Address feedback notes and return to Step 2
-- **All communication happens in the task entry** within `coordination/UX_TASKS.md`
+- **All communication happens in the task entry** within `coordination/agent_output/UX_TASKS.md`
 - **Do not proceed to other tasks** until current task review is complete
 
 **Step 5: Iterate**
-- Continue this cycle until all UX design tasks in `coordination/UX_TASKS.md` are marked "approved"
+- Continue this cycle until all UX design tasks in `coordination/agent_output/UX_TASKS.md` are marked "approved"
 - Each task must be individually approved before being considered complete
 
 ## Collaboration Notes
 
-**Communication Method**: Follow `coordination/COMMUNICATION_PROTOCOL.md` for detailed forum system instructions on how to coordinate with other team members.
+**Communication Method**: Follow `coordination/agent_output/COMMUNICATION_PROTOCOL.md` for detailed forum system instructions on how to coordinate with other team members.
 
 ### With Lead Developer
-- Request guidance on user experience priorities and design decisions via `coordination/FORUM.md`
+- Request guidance on user experience priorities and design decisions via `coordination/agent_output/FORUM.md`
 - Escalate design conflicts and usability issues requiring leadership input
 - Coordinate on design approval and implementation readiness
 - Seek clarification on user requirements and design constraints
 
 ### With Frontend Developers
-- Provide detailed component specifications and interaction guidelines via `coordination/FORUM.md`
+- Provide detailed component specifications and interaction guidelines via `coordination/agent_output/FORUM.md`
 - Clarify design specifications and edge cases
 - Validate implementation against design requirements
 - Coordinate on responsive behavior and accessibility implementation
 
 ### With Product Owner
-- Translate business requirements into user experience solutions via `coordination/FORUM.md`
+- Translate business requirements into user experience solutions via `coordination/agent_output/FORUM.md`
 - Validate design decisions against user needs and business goals
 - Coordinate on feature prioritization and user workflow optimization
 - Ensure design supports key business metrics and success criteria
 
 ### With Graphic Designer
-- Coordinate on visual brand elements and illustration style via `coordination/FORUM.md`
+- Coordinate on visual brand elements and illustration style via `coordination/agent_output/FORUM.md`
 - Ensure consistency between UI design and marketing materials
 - Collaborate on icon design and visual asset creation
 - Maintain brand consistency across all user touchpoints
