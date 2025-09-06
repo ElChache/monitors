@@ -1,0 +1,177 @@
+# Docker Compose Template for Agent Isolation
+# 
+# INSTRUCTIONS FOR AGENTS:
+# 1. Copy this file to your isolated workspace: cp docker-compose.template.yml docker-compose.yml
+# 2. Replace all ${AGENT_ID} placeholders with your actual agent ID
+# 3. Replace all ${PORT_*} placeholders with your calculated ports using the algorithm from AGENT_ISOLATION_PROTOCOL.md
+# 4. Run: docker-compose up -d
+#
+# Port Calculation Algorithm (implement in your workspace):
+# function getAgentPorts(agentId) {
+#   let hash = 0;
+#   for (let i = 0; i < agentId.length; i++) {
+#     hash = ((hash << 5) - hash + agentId.charCodeAt(i)) & 0xffffffff;
+#   }
+#   const basePort = 5000 + (Math.abs(hash) % 4000);
+#   return {
+#     app: basePort,           // Frontend development server
+#     db: basePort + 1,        // PostgreSQL database  
+#     redis: basePort + 2,     // Redis cache
+#     api: basePort + 3,       // Backend API server
+#     playwright: basePort + 4 // Playwright debug port
+#   };
+# }
+
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "${APP_PORT}:5173"  # Replace ${APP_PORT} with your calculated app port
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@db:5432/monitors_${AGENT_ID}  # Replace ${AGENT_ID}
+      - REDIS_URL=redis://redis:6379
+      - AGENT_ID=${AGENT_ID}  # Replace ${AGENT_ID} with your actual agent ID
+      - PUBLIC_APP_URL=http://localhost:${APP_PORT}  # Replace ${APP_PORT}
+      - API_PORT=${API_PORT}  # Replace ${API_PORT} with your calculated API port
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.svelte-kit
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    ports:
+      - "${DB_PORT}:5432"   # Replace ${DB_PORT} with your calculated database port
+    environment:
+      - POSTGRES_DB=monitors_${AGENT_ID}  # Replace ${AGENT_ID} with your actual agent ID
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - postgres_data_${AGENT_ID}:/var/lib/postgresql/data  # Replace ${AGENT_ID}
+      - ./src/lib/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT}:6379" # Replace ${REDIS_PORT} with your calculated Redis port
+    volumes:
+      - redis_data_${AGENT_ID}:/data  # Replace ${AGENT_ID} with your actual agent ID
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: Separate API server (if backend is separate from SvelteKit)
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile.api  # Create this if you have a separate API server
+    ports:
+      - "${API_PORT}:3000"  # Replace ${API_PORT} with your calculated API port
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@db:5432/monitors_${AGENT_ID}  # Replace ${AGENT_ID}
+      - REDIS_URL=redis://redis:6379
+      - PORT=3000
+      - AGENT_ID=${AGENT_ID}  # Replace ${AGENT_ID}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    # Uncomment this service only if you have a separate API server
+
+  # Optional: Playwright testing service
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.40.0-focal
+    ports:
+      - "${PLAYWRIGHT_PORT}:9223"  # Replace ${PLAYWRIGHT_PORT} with your calculated Playwright port
+    environment:
+      - AGENT_ID=${AGENT_ID}  # Replace ${AGENT_ID}
+      - APP_URL=http://app:5173
+    volumes:
+      - .:/app
+      - /tmp:/tmp  # For screenshot storage
+    working_dir: /app
+    depends_on:
+      - app
+    profiles:
+      - testing  # Only start when testing profile is active: docker-compose --profile testing up
+    restart: "no"
+
+volumes:
+  postgres_data_${AGENT_ID}:  # Replace ${AGENT_ID} with your actual agent ID
+  redis_data_${AGENT_ID}:     # Replace ${AGENT_ID} with your actual agent ID
+
+networks:
+  default:
+    name: monitors_${AGENT_ID}_network  # Replace ${AGENT_ID} with your actual agent ID
+
+# Environment file template (.env.example)
+# Copy to .env and fill with your calculated values:
+#
+# AGENT_ID=agent_1703123456_a7b9
+# APP_PORT=5347
+# DB_PORT=5348  
+# REDIS_PORT=5349
+# API_PORT=5350
+# PLAYWRIGHT_PORT=5351
+# DATABASE_URL=postgresql://postgres:password@localhost:${DB_PORT}/monitors_${AGENT_ID}
+# REDIS_URL=redis://localhost:${REDIS_PORT}
+# NODE_ENV=development
+
+# Quick setup script (create this in your workspace):
+# #!/bin/bash
+# # setup-agent-env.sh
+# AGENT_ID="your_agent_id_here"
+# 
+# # Calculate ports (implement the hash function)
+# APP_PORT=5347  # Replace with calculated value
+# DB_PORT=5348   # APP_PORT + 1
+# REDIS_PORT=5349     # APP_PORT + 2
+# API_PORT=5350       # APP_PORT + 3
+# PLAYWRIGHT_PORT=5351 # APP_PORT + 4
+# 
+# # Replace placeholders in docker-compose.yml
+# sed -i "s/\${AGENT_ID}/$AGENT_ID/g" docker-compose.yml
+# sed -i "s/\${APP_PORT}/$APP_PORT/g" docker-compose.yml
+# sed -i "s/\${DB_PORT}/$DB_PORT/g" docker-compose.yml
+# sed -i "s/\${REDIS_PORT}/$REDIS_PORT/g" docker-compose.yml
+# sed -i "s/\${API_PORT}/$API_PORT/g" docker-compose.yml
+# sed -i "s/\${PLAYWRIGHT_PORT}/$PLAYWRIGHT_PORT/g" docker-compose.yml
+# 
+# # Create .env file
+# cat > .env << EOF
+# AGENT_ID=$AGENT_ID
+# APP_PORT=$APP_PORT
+# DB_PORT=$DB_PORT
+# REDIS_PORT=$REDIS_PORT
+# API_PORT=$API_PORT
+# PLAYWRIGHT_PORT=$PLAYWRIGHT_PORT
+# DATABASE_URL=postgresql://postgres:password@localhost:$DB_PORT/monitors_$AGENT_ID
+# REDIS_URL=redis://localhost:$REDIS_PORT
+# NODE_ENV=development
+# EOF
+# 
+# echo "Environment configured for agent: $AGENT_ID"
+# echo "App URL: http://localhost:$APP_PORT"
+# echo "Database: localhost:$DB_PORT"
+# echo "Ready to run: docker-compose up -d"
