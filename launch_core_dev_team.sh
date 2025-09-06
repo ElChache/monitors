@@ -16,6 +16,9 @@ tmux new-session -d -s $SESSION_NAME -c "$PROJECT_PATH"
 tmux split-window -h -c "$PROJECT_PATH"    # Split horizontally
 tmux split-window -v -c "$PROJECT_PATH"    # Split right pane vertically
 
+# Enable mouse support for proper scrolling
+tmux set-option -t $SESSION_NAME -g mouse on
+
 echo "⚙️ Setting up core development environments..."
 
 # Set up each pane with Claude Sonnet

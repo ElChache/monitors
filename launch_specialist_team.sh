@@ -20,6 +20,9 @@ tmux split-window -v -c "$PROJECT_PATH"    # Split left pane vertically
 tmux select-pane -t 2
 tmux split-window -h -c "$PROJECT_PATH"    # Split bottom right horizontally
 
+# Enable mouse support for proper scrolling
+tmux set-option -t $SESSION_NAME -g mouse on
+
 echo "⚙️ Setting up specialist environments..."
 
 # Set up each pane with Claude Haiku

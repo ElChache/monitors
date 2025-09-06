@@ -34,6 +34,9 @@ tmux select-pane -t 6
 tmux split-window -v -c "$PROJECT_PATH"  # Split vertically
 tmux split-window -h -c "$PROJECT_PATH"  # Split horizontally
 
+# Enable mouse support for proper scrolling
+tmux set-option -t $SESSION_NAME -g mouse on
+
 echo "⚙️ Setting up agent environments..."
 
 # Set up aliases for each pane with appropriate models
