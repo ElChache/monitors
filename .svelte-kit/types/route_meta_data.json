@@ -1,0 +1,51 @@
+{
+	"/": [],
+	"/api/auth/forgot-password": [
+		"src/routes/api/auth/forgot-password/+server.ts"
+	],
+	"/api/auth/login": [
+		"src/routes/api/auth/login/+server.ts"
+	],
+	"/api/auth/logout": [
+		"src/routes/api/auth/logout/+server.ts"
+	],
+	"/api/auth/me": [
+		"src/routes/api/auth/me/+server.ts"
+	],
+	"/api/auth/refresh": [
+		"src/routes/api/auth/refresh/+server.ts"
+	],
+	"/api/auth/register": [
+		"src/routes/api/auth/register/+server.ts"
+	],
+	"/api/auth/reset-password": [
+		"src/routes/api/auth/reset-password/+server.ts"
+	],
+	"/api/auth/verify-email": [
+		"src/routes/api/auth/verify-email/+server.ts"
+	],
+	"/api/cache/stats": [
+		"src/routes/api/cache/stats/+server.ts"
+	],
+	"/api/cache/test": [
+		"src/routes/api/cache/test/+server.ts"
+	],
+	"/api/email/test": [
+		"src/routes/api/email/test/+server.ts"
+	],
+	"/api/email/unsubscribe": [
+		"src/routes/api/email/unsubscribe/+server.ts"
+	],
+	"/api/health": [
+		"src/routes/api/health/+server.ts"
+	],
+	"/api/monitors": [
+		"src/routes/api/monitors/+server.ts"
+	],
+	"/api/monitors/[id]": [
+		"src/routes/api/monitors/[id]/+server.ts"
+	],
+	"/api/monitors/[id]/toggle": [
+		"src/routes/api/monitors/[id]/toggle/+server.ts"
+	]
+}

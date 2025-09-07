@@ -1,4 +1,5 @@
-import Bull from 'bull';
+// Temporarily disabled BullMQ imports to fix compatibility issues
+// import { Queue, Worker } from 'bullmq';
 import { MonitorEvaluationService } from './evaluation_service';
 
 export interface MonitorJob {
@@ -12,7 +13,8 @@ export interface MonitorJob {
  * Job queue service for monitor evaluations using BullMQ
  */
 export class MonitorJobQueue {
-  private static queue: Bull.Queue<MonitorJob> | null = null;
+  private static queue: Queue<MonitorJob> | null = null;
+  private static worker: Worker | null = null;
   private static isProcessing = false;
 
   /**
@@ -22,16 +24,18 @@ export class MonitorJobQueue {
     if (this.queue) return;
 
     try {
-      // Use Redis connection for job queue
-      this.queue = new Bull('monitor-evaluation', {
-        redis: {
-          host: process.env.REDIS_HOST || 'localhost',
-          port: parseInt(process.env.REDIS_PORT || '6379'),
-          password: process.env.REDIS_PASSWORD,
-        },
+      // Use Redis connection for job queue  
+      const connection = {
+        host: process.env.REDIS_HOST || 'redis',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
+        password: process.env.REDIS_PASSWORD,
+      };
+      
+      this.queue = new Queue('monitor-evaluation', {
+        connection,
         defaultJobOptions: {
-          removeOnComplete: 100, // Keep last 100 completed jobs
-          removeOnFail: 50, // Keep last 50 failed jobs
+          removeOnComplete: 100,
+          removeOnFail: 50,
           attempts: 3,
           backoff: {
             type: 'exponential',
@@ -42,7 +46,10 @@ export class MonitorJobQueue {
 
       // Set up job processing
       if (!this.isProcessing) {
-        this.queue.process('evaluate-monitor', 5, this.processMonitorEvaluation.bind(this));
+        this.worker = new Worker('monitor-evaluation', this.processMonitorEvaluation.bind(this), {
+          connection,
+          concurrency: 5,
+        });
         this.isProcessing = true;
       }
 
@@ -93,7 +100,7 @@ export class MonitorJobQueue {
   /**
    * Process monitor evaluation job
    */
-  private static async processMonitorEvaluation(job: Bull.Job<MonitorJob>): Promise<void> {
+  private static async processMonitorEvaluation(job: any): Promise<void> {
     const { monitorId, userId, scheduled } = job.data;
     const jobId = job.id?.toString();
 

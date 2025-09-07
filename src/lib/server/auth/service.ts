@@ -1,5 +1,5 @@
-import { db } from '../db/connection.js';
-import { users, sessions, passwordResetTokens, emailVerificationTokens, userPreferences } from '../db/schemas/users.js';
+import { db } from '../../db/connection';
+import { users, sessions, passwordResetTokens, emailVerificationTokens, userPreferences } from '../../db/schemas/users';
 import { JWTService, type TokenPair } from './jwt.js';
 import { PasswordService } from './password.js';
 import { eq, and, or, gt } from 'drizzle-orm';
