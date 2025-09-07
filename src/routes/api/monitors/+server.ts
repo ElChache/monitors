@@ -1,9 +1,25 @@
 import type { RequestHandler } from './$types';
 import { error, json } from '@sveltejs/kit';
 import { z } from 'zod';
-import { createMonitorSchema, listMonitorsSchema } from '$lib/server/monitors/validation';
-import { MonitorService } from '$lib/server/monitors/service';
+import { MonitorService } from '$lib/server/monitoring';
 import { JWTService } from '$lib/server/auth/jwt';
+
+// Validation schemas for monitor operations
+const createMonitorSchema = z.object({
+  name: z.string().min(1).max(100),
+  prompt: z.string().min(10).max(1000),
+  type: z.enum(['state', 'change']),
+  extractedFact: z.string().min(1).max(500),
+  triggerCondition: z.string().min(1).max(500),
+  factType: z.enum(['number', 'string', 'boolean', 'object']),
+  checkFrequency: z.number().min(5).max(1440).optional().default(60), // 5 minutes to 24 hours
+});
+
+const listMonitorsSchema = z.object({
+  page: z.string().optional().transform(val => val ? parseInt(val) : 1),
+  limit: z.string().optional().transform(val => val ? parseInt(val) : 20),
+  active: z.string().optional().transform(val => val === 'true' ? true : val === 'false' ? false : undefined),
+});
 
 // GET /api/monitors - List user's monitors with filtering
 export const GET: RequestHandler = async ({ request, cookies, url }) => {
@@ -23,8 +39,29 @@ export const GET: RequestHandler = async ({ request, cookies, url }) => {
     const queryParams = Object.fromEntries(url.searchParams);
     const query = listMonitorsSchema.parse(queryParams);
 
-    // Get monitors for user
-    const result = await MonitorService.getMonitors(payload.userId, query);
+    // Get monitors for user using new MonitorService
+    const monitors = await MonitorService.getUserMonitors(payload.userId);
+
+    // Apply filtering if needed
+    let filteredMonitors = monitors;
+    if (query.active !== undefined) {
+      filteredMonitors = monitors.filter(monitor => monitor.isActive === query.active);
+    }
+
+    // Apply pagination
+    const start = (query.page - 1) * query.limit;
+    const end = start + query.limit;
+    const paginatedMonitors = filteredMonitors.slice(start, end);
+
+    const result = {
+      monitors: paginatedMonitors,
+      pagination: {
+        page: query.page,
+        limit: query.limit,
+        total: filteredMonitors.length,
+        hasMore: end < filteredMonitors.length,
+      },
+    };
 
     return json({
       success: true,
@@ -69,15 +106,15 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     const validatedData = createMonitorSchema.parse(data);
 
     // Check monitor creation limits (basic limit of 50 for now)
-    const currentCount = await MonitorService.getUserMonitorCount(payload.userId);
-    if (currentCount >= 50) {
+    const currentMonitors = await MonitorService.getUserMonitors(payload.userId);
+    if (currentMonitors.length >= 50) {
       throw error(429, {
         message: 'Monitor limit reached',
         details: 'Maximum of 50 monitors allowed per user'
       });
     }
 
-    // Create monitor
+    // Create monitor using new MonitorService (includes scheduling and initial evaluation)
     const monitor = await MonitorService.createMonitor(payload.userId, validatedData);
 
     return json({
