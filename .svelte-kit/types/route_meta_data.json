@@ -1,7 +1,29 @@
 {
 	"/": [],
+	"/admin": [],
+	"/api/admin/activity": [
+		"src/routes/api/admin/activity/+server.ts"
+	],
+	"/api/admin/config": [
+		"src/routes/api/admin/config/+server.ts"
+	],
+	"/api/admin/health": [
+		"src/routes/api/admin/health/+server.ts"
+	],
+	"/api/admin/stats": [
+		"src/routes/api/admin/stats/+server.ts"
+	],
+	"/api/admin/users": [
+		"src/routes/api/admin/users/+server.ts"
+	],
+	"/api/ai/suggestions": [
+		"src/routes/api/ai/suggestions/+server.ts"
+	],
 	"/api/auth/forgot-password": [
 		"src/routes/api/auth/forgot-password/+server.ts"
+	],
+	"/api/auth/google": [
+		"src/routes/api/auth/google/+server.ts"
 	],
 	"/api/auth/login": [
 		"src/routes/api/auth/login/+server.ts"
@@ -39,13 +61,75 @@
 	"/api/health": [
 		"src/routes/api/health/+server.ts"
 	],
+	"/api/monitoring/evaluate-all": [
+		"src/routes/api/monitoring/evaluate-all/+server.ts"
+	],
+	"/api/monitoring/status": [
+		"src/routes/api/monitoring/status/+server.ts"
+	],
+	"/api/monitoring/test": [
+		"src/routes/api/monitoring/test/+server.ts"
+	],
 	"/api/monitors": [
 		"src/routes/api/monitors/+server.ts"
+	],
+	"/api/monitors/drafts": [
+		"src/routes/api/monitors/drafts/+server.ts"
+	],
+	"/api/monitors/drafts/save": [
+		"src/routes/api/monitors/drafts/save/+server.ts"
+	],
+	"/api/monitors/test": [
+		"src/routes/api/monitors/test/+server.ts"
 	],
 	"/api/monitors/[id]": [
 		"src/routes/api/monitors/[id]/+server.ts"
 	],
+	"/api/monitors/[id]/chart": [
+		"src/routes/api/monitors/[id]/chart/+server.ts"
+	],
+	"/api/monitors/[id]/evaluate": [
+		"src/routes/api/monitors/[id]/evaluate/+server.ts"
+	],
+	"/api/monitors/[id]/history": [
+		"src/routes/api/monitors/[id]/history/+server.ts"
+	],
+	"/api/monitors/[id]/insights": [
+		"src/routes/api/monitors/[id]/insights/+server.ts"
+	],
+	"/api/monitors/[id]/mini-chart-data": [
+		"src/routes/api/monitors/[id]/mini-chart-data/+server.ts"
+	],
+	"/api/monitors/[id]/refresh": [
+		"src/routes/api/monitors/[id]/refresh/+server.ts"
+	],
+	"/api/monitors/[id]/stats": [
+		"src/routes/api/monitors/[id]/stats/+server.ts"
+	],
 	"/api/monitors/[id]/toggle": [
 		"src/routes/api/monitors/[id]/toggle/+server.ts"
-	]
+	],
+	"/api/user/change-password": [
+		"src/routes/api/user/change-password/+server.ts"
+	],
+	"/api/user/delete-account": [
+		"src/routes/api/user/delete-account/+server.ts"
+	],
+	"/api/user/export-data": [
+		"src/routes/api/user/export-data/+server.ts"
+	],
+	"/api/user/preferences": [
+		"src/routes/api/user/preferences/+server.ts"
+	],
+	"/api/user/profile": [
+		"src/routes/api/user/profile/+server.ts"
+	],
+	"/api/user/sessions": [
+		"src/routes/api/user/sessions/+server.ts"
+	],
+	"/dashboard": [],
+	"/monitors": [],
+	"/monitors/create": [],
+	"/settings": [],
+	"/settings/email-templates": []
 }

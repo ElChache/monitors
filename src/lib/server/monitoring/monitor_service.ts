@@ -1,17 +1,26 @@
 import { eq, desc } from 'drizzle-orm';
-import { db } from '../db';
+import { db } from '../../db/connection';
 import { monitors, monitorFacts, factHistory } from '../../db/schemas/monitors';
 import { MonitorEvaluationService } from './evaluation_service';
 import { MonitorJobQueue } from './job_queue';
+import { classifyPrompt, generateTemplateSuggestions } from '$lib/ai';
 
 export interface MonitorCreateData {
   name: string;
   prompt: string;
-  type: 'state' | 'change';
-  extractedFact: string;
-  triggerCondition: string;
-  factType: 'number' | 'string' | 'boolean' | 'object';
+  type?: 'state' | 'change'; // Now optional - AI will classify
+  extractedFact?: string;   // Now optional - AI will extract
+  triggerCondition?: string; // Now optional - AI will generate
+  factType?: 'number' | 'string' | 'boolean' | 'object'; // Now optional - AI will infer
   checkFrequency?: number; // in minutes, default 60
+}
+
+// Enhanced interface for AI-powered monitor creation
+export interface AIMonitorCreateData {
+  name: string;
+  prompt: string;
+  checkFrequency?: number;
+  // AI will automatically determine: type, extractedFact, triggerCondition, factType
 }
 
 export interface MonitorUpdateData {
@@ -28,19 +37,57 @@ export interface MonitorUpdateData {
 export class MonitorService {
   
   /**
-   * Create a new monitor and schedule its evaluations
+   * Create a new monitor with AI-enhanced configuration
    */
   static async createMonitor(userId: string, data: MonitorCreateData): Promise<any> {
     try {
+      // Use AI to classify and enhance monitor configuration if not provided
+      let monitorConfig = data;
+      
+      if (!data.type || !data.extractedFact || !data.triggerCondition || !data.factType) {
+        console.log(`Using AI to classify monitor prompt: "${data.prompt}"`);
+        
+        try {
+          const classification = await classifyPrompt(data.prompt);
+          
+          monitorConfig = {
+            ...data,
+            type: data.type || classification.monitorType,
+            extractedFact: data.extractedFact || classification.extractedFact,
+            triggerCondition: data.triggerCondition || classification.triggerCondition,
+            factType: data.factType || classification.factType,
+            checkFrequency: data.checkFrequency || classification.recommendedFrequency
+          };
+          
+          console.log(`AI classification complete:`, {
+            type: monitorConfig.type,
+            factType: monitorConfig.factType,
+            frequency: monitorConfig.checkFrequency,
+            confidence: classification.confidence
+          });
+          
+        } catch (aiError) {
+          console.warn('AI classification failed, using defaults:', aiError);
+          // Fallback to basic defaults if AI fails
+          monitorConfig = {
+            ...data,
+            type: data.type || 'state',
+            extractedFact: data.extractedFact || 'Extract value from the content',
+            triggerCondition: data.triggerCondition || 'Monitor for changes',
+            factType: data.factType || 'string'
+          };
+        }
+      }
+
       const monitor = await db.insert(monitors).values({
         userId,
-        name: data.name,
-        prompt: data.prompt,
-        type: data.type,
-        extractedFact: data.extractedFact,
-        triggerCondition: data.triggerCondition,
-        factType: data.factType,
-        checkFrequency: data.checkFrequency || 60,
+        name: monitorConfig.name,
+        prompt: monitorConfig.prompt,
+        type: monitorConfig.type!,
+        extractedFact: monitorConfig.extractedFact!,
+        triggerCondition: monitorConfig.triggerCondition!,
+        factType: monitorConfig.factType!,
+        checkFrequency: monitorConfig.checkFrequency || 60,
         isActive: true,
         evaluationCount: 0,
         triggerCount: 0,
@@ -54,7 +101,7 @@ export class MonitorService {
       await MonitorJobQueue.scheduleRecurringEvaluation(
         createdMonitor.id,
         userId,
-        data.checkFrequency || 60
+        monitorConfig.checkFrequency || 60
       );
 
       // Perform initial evaluation
@@ -63,7 +110,7 @@ export class MonitorService {
         priority: 10, // High priority for initial evaluation
       });
 
-      console.log(`Created monitor ${createdMonitor.id} with initial evaluation scheduled`);
+      console.log(`Created AI-enhanced monitor ${createdMonitor.id} with initial evaluation scheduled`);
       return createdMonitor;
 
     } catch (error) {

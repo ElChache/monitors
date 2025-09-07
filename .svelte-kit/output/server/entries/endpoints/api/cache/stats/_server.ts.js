@@ -1,5 +1,5 @@
 import { error, json } from "@sveltejs/kit";
-import { C as CacheService, a as CacheTrackingService } from "../../../../../chunks/service2.js";
+import { C as CacheService, a as CacheTrackingService } from "../../../../../chunks/service3.js";
 const GET = async ({ url }) => {
   try {
     if (process.env.NODE_ENV === "production" && process.env.CACHE_STATS_ENABLED !== "true") {

@@ -75,6 +75,52 @@ export {
   type GeneratedNotification
 } from './services/notificationGeneration.js';
 
+export {
+  FactExtractionService,
+  extractFacts,
+  extractFactsBatch,
+  ContentType,
+  FactType,
+  FactExtractionInputSchema,
+  BatchExtractionInputSchema,
+  type ExtractedFact,
+  type FactExtractionResult,
+  type BatchExtractionResult
+} from './services/factExtraction.js';
+
+export {
+  WebScrapingEnhancementService,
+  enhanceScrapingData,
+  enhanceBatch,
+  ContentRelevance,
+  NoiseType,
+  DataNormalization,
+  ScrapingEnhancementInputSchema,
+  BatchEnhancementInputSchema,
+  type ContentSegment,
+  type NormalizedData,
+  type TemporalData,
+  type EnhancedScrapingResult,
+  type BatchEnhancementResult
+} from './services/webScrapingEnhancement.js';
+
+export {
+  TemplateSuggestionService,
+  generateTemplateSuggestions,
+  generateBatchTemplateSuggestions,
+  getAllMonitorTemplates,
+  getTemplatesByCategory,
+  TemplateCategory,
+  TemplatePopularity,
+  TemplateEffectiveness,
+  TemplateSuggestionInputSchema,
+  BatchSuggestionInputSchema,
+  type MonitorTemplate,
+  type TemplateSuggestion,
+  type TemplateSuggestionResult,
+  type BatchSuggestionResult
+} from './services/templateSuggestions.js';
+
 // Convenience functions for common use cases
 
 /**

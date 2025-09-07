@@ -11,6 +11,101 @@ import { eq } from 'drizzle-orm';
 export class IntegratedEmailService {
   
   /**
+   * Send AI-generated monitor notification with enhanced personalization
+   */
+  static async sendAIGeneratedNotification(
+    monitorId: string,
+    currentValue: any,
+    previousValue: any,
+    aiNotificationData: any
+  ): Promise<boolean> {
+    try {
+      // Get monitor and user details from database
+      const monitorResult = await db
+        .select({
+          monitor: monitors,
+          user: users
+        })
+        .from(monitors)
+        .innerJoin(users, eq(monitors.userId, users.id))
+        .where(eq(monitors.id, monitorId))
+        .limit(1);
+
+      if (monitorResult.length === 0) {
+        console.error('Monitor or user not found:', monitorId);
+        return false;
+      }
+
+      const { monitor, user } = monitorResult[0];
+
+      // Check if user is unsubscribed from monitor notifications
+      const isUnsubscribed = await EmailTrackingService.isUnsubscribed(
+        user.id,
+        'monitor_notifications'
+      );
+
+      if (isUnsubscribed) {
+        console.log(`User ${user.email} is unsubscribed from monitor notifications`);
+        return true; // Return true as it's not an error, just skipped
+      }
+
+      // Generate URLs
+      const baseUrl = process.env.APP_URL || 'https://monitors.app';
+      const monitorUrl = `${baseUrl}/monitors/${monitor.id}`;
+      const dashboardUrl = `${baseUrl}/dashboard`;
+      const unsubscribeUrl = EmailTrackingService.generateUnsubscribeUrl(
+        user.id,
+        'monitor_notifications'
+      );
+
+      // Use AI-generated notification data with enhanced personalization
+      const enhancedNotificationData = {
+        monitorName: monitor.name,
+        userName: user.name || user.email.split('@')[0],
+        currentValue,
+        previousValue,
+        triggerCondition: monitor.triggerCondition,
+        monitorUrl,
+        dashboardUrl,
+        unsubscribeUrl,
+        // AI-enhanced fields
+        aiSubject: aiNotificationData.subject,
+        aiBody: aiNotificationData.body,
+        urgencyLevel: aiNotificationData.urgency || 'medium',
+        actionRecommendations: aiNotificationData.recommendations || [],
+        contextualInsights: aiNotificationData.insights || []
+      };
+
+      // Send AI-enhanced email using existing notification system
+      // The AI-generated content will be passed through in the notification data
+      const success = await EmailService.sendMonitorNotification(
+        user.email,
+        enhancedNotificationData
+      );
+
+      // Log delivery attempt with AI metadata
+      await EmailTrackingService.logDelivery(
+        user.id,
+        user.email,
+        'ai_monitor_notification',
+        aiNotificationData.subject || `AI Monitor Alert: ${monitor.name}`,
+        { 
+          success, 
+          messageId: success ? `ai_monitor_${monitorId}_${Date.now()}` : undefined,
+          urgency: aiNotificationData.urgency,
+          aiGenerated: true
+        }
+      );
+
+      return success;
+
+    } catch (error) {
+      console.error('Failed to send AI-generated monitor notification:', error);
+      return false;
+    }
+  }
+
+  /**
    * Send monitor notification with full database integration
    */
   static async sendMonitorNotification(

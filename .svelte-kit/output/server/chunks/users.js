@@ -271,6 +271,27 @@ const rateLimits = pgTable(
     resetAtIdx: index("rate_limits_reset_at_idx").on(table.resetAt)
   })
 );
+const monitorDrafts = pgTable(
+  "monitor_drafts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    prompt: text("prompt").notNull(),
+    name: varchar("name", { length: 100 }),
+    monitorType: varchar("monitor_type", { length: 10 }).$type(),
+    extractedFact: text("extracted_fact"),
+    triggerCondition: text("trigger_condition"),
+    factType: varchar("fact_type", { length: 20 }).$type(),
+    aiSuggestions: jsonb("ai_suggestions"),
+    // Store AI suggestions for the draft
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({
+    userIdx: index("monitor_drafts_user_idx").on(table.userId),
+    updatedAtIdx: index("monitor_drafts_updated_at_idx").on(table.updatedAt)
+  })
+);
 const monitorsRelations = relations(monitors, ({ one, many }) => ({
   user: one(users, {
     fields: [monitors.userId],
@@ -309,6 +330,7 @@ const monitorSchema = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defin
   __proto__: null,
   factHistory,
   factHistoryRelations,
+  monitorDrafts,
   monitorEvaluations,
   monitorEvaluationsRelations,
   monitorFacts,
@@ -328,6 +350,8 @@ const users = pgTable(
     // null for OAuth users
     googleId: varchar("google_id", { length: 100 }).unique(),
     isBetaUser: boolean("is_beta_user").notNull().default(false),
+    isAdmin: boolean("is_admin").notNull().default(false),
+    isActive: boolean("is_active").notNull().default(true),
     emailVerified: boolean("email_verified").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -483,15 +507,19 @@ const userSchema = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePr
   usersRelations
 }, Symbol.toStringTag, { value: "Module" }));
 export {
-  users as a,
-  userPreferences as b,
-  emailNotifications as c,
+  monitorDrafts as a,
+  monitorSchema as b,
+  userSchema as c,
   emailUnsubscribes as d,
-  emailVerificationTokens as e,
-  monitors as f,
-  monitorSchema as m,
+  emailNotifications as e,
+  monitorEvaluations as f,
+  factHistory as g,
+  userPreferences as h,
+  emailVerificationTokens as i,
+  monitorFacts as j,
+  monitors as m,
   notificationSchema as n,
   passwordResetTokens as p,
   sessions as s,
-  userSchema as u
+  users as u
 };

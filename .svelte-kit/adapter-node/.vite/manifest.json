@@ -9,32 +9,51 @@
       "_environment.js"
     ]
   },
-  "_db.js": {
-    "file": "chunks/db.js",
-    "name": "db"
+  "_client.js": {
+    "file": "chunks/client.js",
+    "name": "client",
+    "imports": [
+      "_index3.js",
+      "_exports.js",
+      "_utils.js",
+      "_index2.js"
+    ]
   },
   "_environment.js": {
     "file": "chunks/environment.js",
     "name": "environment"
   },
-  "_equality.js": {
-    "file": "chunks/equality.js",
-    "name": "equality"
-  },
-  "_escaping.js": {
-    "file": "chunks/escaping.js",
-    "name": "escaping"
+  "_evaluation_service.js": {
+    "file": "chunks/evaluation_service.js",
+    "name": "evaluation_service",
+    "imports": [
+      "src/lib/server/db.ts",
+      "_users.js",
+      "_service4.js",
+      "_templates.js"
+    ]
   },
   "_exports.js": {
     "file": "chunks/exports.js",
-    "name": "exports",
+    "name": "exports"
+  },
+  "_historical_service.js": {
+    "file": "chunks/historical_service.js",
+    "name": "historical_service",
     "imports": [
-      "_equality.js",
-      "_index.js"
+      "src/lib/server/db.ts",
+      "_users.js"
     ]
   },
-  "_index.js": {
-    "file": "chunks/index.js",
+  "_index2.js": {
+    "file": "chunks/index2.js",
+    "name": "index",
+    "imports": [
+      "_index3.js"
+    ]
+  },
+  "_index3.js": {
+    "file": "chunks/index3.js",
     "name": "index",
     "imports": [
       "_true.js"
@@ -44,41 +63,95 @@
     "file": "chunks/internal.js",
     "name": "internal",
     "imports": [
-      "_index.js",
-      "_true.js",
-      "_equality.js",
+      "_index3.js",
       "_environment.js"
+    ],
+    "dynamicImports": [
+      "src/hooks.server.ts"
+    ]
+  },
+  "_job_queue_simple.js": {
+    "file": "chunks/job_queue_simple.js",
+    "name": "job_queue_simple",
+    "imports": [
+      "_evaluation_service.js"
     ]
   },
   "_jwt.js": {
     "file": "chunks/jwt.js",
     "name": "jwt"
   },
+  "_monitor_service.js": {
+    "file": "chunks/monitor_service.js",
+    "name": "monitor_service",
+    "imports": [
+      "src/lib/db/connection.ts",
+      "_users.js",
+      "_evaluation_service.js",
+      "src/lib/server/db.ts",
+      "_service4.js"
+    ]
+  },
   "_rateLimit.js": {
     "file": "chunks/rateLimit.js",
     "name": "rateLimit"
+  },
+  "_redis.js": {
+    "file": "chunks/redis.js",
+    "name": "redis"
   },
   "_service.js": {
     "file": "chunks/service.js",
     "name": "service",
     "imports": [
+      "src/lib/server/db.ts",
       "_users.js",
-      "_jwt.js"
+      "_service2.js"
+    ],
+    "dynamicImports": [
+      "src/lib/db/connection.ts"
     ]
   },
   "_service2.js": {
     "file": "chunks/service2.js",
     "name": "service",
+    "isDynamicEntry": true,
     "imports": [
-      "_db.js"
+      "src/lib/db/connection.ts",
+      "_users.js",
+      "_jwt.js"
     ]
   },
   "_service3.js": {
     "file": "chunks/service3.js",
     "name": "service",
     "imports": [
-      "_db.js",
+      "_redis.js",
+      "src/lib/server/db.ts"
+    ]
+  },
+  "_service4.js": {
+    "file": "chunks/service4.js",
+    "name": "service"
+  },
+  "_service5.js": {
+    "file": "chunks/service5.js",
+    "name": "service",
+    "imports": [
+      "src/lib/server/db.ts",
       "_users.js"
+    ]
+  },
+  "_service6.js": {
+    "file": "chunks/service6.js",
+    "name": "service",
+    "imports": [
+      "src/lib/server/db.ts",
+      "_users.js",
+      "_service2.js"
+    ],
+    "dynamicImports": [
+      "_service2.js"
     ]
   },
   "_shared.js": {
@@ -92,7 +165,7 @@
     "file": "chunks/templates.js",
     "name": "templates",
     "imports": [
-      "_db.js",
+      "src/lib/server/db.ts",
       "_users.js"
     ]
   },
@@ -102,7 +175,8 @@
   },
   "_users.js": {
     "file": "chunks/users.js",
-    "name": "users"
+    "name": "users",
+    "isDynamicEntry": true
   },
   "_utils.js": {
     "file": "chunks/utils.js",
@@ -125,11 +199,8 @@
     "src": "node_modules/.pnpm/@sveltejs+kit@2.37.1_@sveltejs+vite-plugin-svelte@4.0.4_svelte@5.38.7_vite@5.4.19_@type_b82692f9a03497bcb4358be02822c3fa/node_modules/@sveltejs/kit/src/runtime/components/svelte-5/error.svelte",
     "isEntry": true,
     "imports": [
-      "_index.js",
-      "_escaping.js",
-      "_equality.js",
-      "_exports.js",
-      "_utils.js"
+      "_index3.js",
+      "_client.js"
     ]
   },
   "node_modules/.pnpm/@sveltejs+kit@2.37.1_@sveltejs+vite-plugin-svelte@4.0.4_svelte@5.38.7_vite@5.4.19_@type_b82692f9a03497bcb4358be02822c3fa/node_modules/@sveltejs/kit/src/runtime/components/svelte-5/layout.svelte": {
@@ -138,7 +209,7 @@
     "src": "node_modules/.pnpm/@sveltejs+kit@2.37.1_@sveltejs+vite-plugin-svelte@4.0.4_svelte@5.38.7_vite@5.4.19_@type_b82692f9a03497bcb4358be02822c3fa/node_modules/@sveltejs/kit/src/runtime/components/svelte-5/layout.svelte",
     "isEntry": true,
     "imports": [
-      "_index.js"
+      "_index3.js"
     ]
   },
   "node_modules/.pnpm/@sveltejs+kit@2.37.1_@sveltejs+vite-plugin-svelte@4.0.4_svelte@5.38.7_vite@5.4.19_@type_b82692f9a03497bcb4358be02822c3fa/node_modules/@sveltejs/kit/src/runtime/server/index.js": {
@@ -152,7 +223,41 @@
       "_internal.js",
       "_shared.js",
       "_exports.js",
-      "_utils.js"
+      "_utils.js",
+      "_index2.js"
+    ]
+  },
+  "src/hooks.server.ts": {
+    "file": "chunks/hooks.server.js",
+    "name": "hooks.server",
+    "src": "src/hooks.server.ts",
+    "isDynamicEntry": true
+  },
+  "src/lib/db/connection.ts": {
+    "file": "chunks/connection.js",
+    "name": "connection",
+    "src": "src/lib/db/connection.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_users.js"
+    ]
+  },
+  "src/lib/server/db.ts": {
+    "file": "chunks/db.js",
+    "name": "db",
+    "src": "src/lib/server/db.ts",
+    "isDynamicEntry": true
+  },
+  "src/lib/server/monitoring/index.ts": {
+    "file": "chunks/index.js",
+    "name": "index",
+    "src": "src/lib/server/monitoring/index.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_evaluation_service.js",
+      "_job_queue_simple.js",
+      "_monitor_service.js",
+      "_historical_service.js"
     ]
   },
   "src/routes/+page.svelte": {
@@ -161,12 +266,76 @@
     "src": "src/routes/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_index.js",
-      "_escaping.js"
+      "_index3.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.BKuVQwIq.css"
+      "_app/immutable/assets/_page.BPfhxRFm.css"
     ]
+  },
+  "src/routes/admin/+page.svelte": {
+    "file": "entries/pages/admin/_page.svelte.js",
+    "name": "entries/pages/admin/_page.svelte",
+    "src": "src/routes/admin/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index3.js"
+    ]
+  },
+  "src/routes/api/admin/activity/+server.ts": {
+    "file": "entries/endpoints/api/admin/activity/_server.ts.js",
+    "name": "entries/endpoints/api/admin/activity/_server.ts",
+    "src": "src/routes/api/admin/activity/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_service.js",
+      "_service2.js"
+    ]
+  },
+  "src/routes/api/admin/config/+server.ts": {
+    "file": "entries/endpoints/api/admin/config/_server.ts.js",
+    "name": "entries/endpoints/api/admin/config/_server.ts",
+    "src": "src/routes/api/admin/config/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_service.js",
+      "_service2.js"
+    ]
+  },
+  "src/routes/api/admin/health/+server.ts": {
+    "file": "entries/endpoints/api/admin/health/_server.ts.js",
+    "name": "entries/endpoints/api/admin/health/_server.ts",
+    "src": "src/routes/api/admin/health/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_service.js",
+      "_service2.js"
+    ]
+  },
+  "src/routes/api/admin/stats/+server.ts": {
+    "file": "entries/endpoints/api/admin/stats/_server.ts.js",
+    "name": "entries/endpoints/api/admin/stats/_server.ts",
+    "src": "src/routes/api/admin/stats/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_service.js",
+      "_service2.js"
+    ]
+  },
+  "src/routes/api/admin/users/+server.ts": {
+    "file": "entries/endpoints/api/admin/users/_server.ts.js",
+    "name": "entries/endpoints/api/admin/users/_server.ts",
+    "src": "src/routes/api/admin/users/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_service.js",
+      "_service2.js"
+    ]
+  },
+  "src/routes/api/ai/suggestions/+server.ts": {
+    "file": "entries/endpoints/api/ai/suggestions/_server.ts.js",
+    "name": "entries/endpoints/api/ai/suggestions/_server.ts",
+    "src": "src/routes/api/ai/suggestions/+server.ts",
+    "isEntry": true
   },
   "src/routes/api/auth/forgot-password/+server.ts": {
     "file": "entries/endpoints/api/auth/forgot-password/_server.ts.js",
@@ -174,7 +343,7 @@
     "src": "src/routes/api/auth/forgot-password/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service.js",
+      "_service2.js",
       "_rateLimit.js"
     ]
   },
@@ -184,7 +353,7 @@
     "src": "src/routes/api/auth/login/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service.js",
+      "_service2.js",
       "_rateLimit.js"
     ]
   },
@@ -194,7 +363,7 @@
     "src": "src/routes/api/auth/logout/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service.js"
+      "_service2.js"
     ]
   },
   "src/routes/api/auth/me/+server.ts": {
@@ -203,7 +372,7 @@
     "src": "src/routes/api/auth/me/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service.js"
+      "_service2.js"
     ]
   },
   "src/routes/api/auth/refresh/+server.ts": {
@@ -212,7 +381,7 @@
     "src": "src/routes/api/auth/refresh/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service.js"
+      "_service2.js"
     ]
   },
   "src/routes/api/auth/register/+server.ts": {
@@ -221,7 +390,7 @@
     "src": "src/routes/api/auth/register/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service.js",
+      "_service2.js",
       "_rateLimit.js"
     ]
   },
@@ -231,7 +400,7 @@
     "src": "src/routes/api/auth/reset-password/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service.js",
+      "_service2.js",
       "_rateLimit.js"
     ]
   },
@@ -241,7 +410,7 @@
     "src": "src/routes/api/auth/verify-email/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service.js"
+      "_service2.js"
     ]
   },
   "src/routes/api/cache/stats/+server.ts": {
@@ -250,7 +419,7 @@
     "src": "src/routes/api/cache/stats/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service2.js"
+      "_service3.js"
     ]
   },
   "src/routes/api/cache/test/+server.ts": {
@@ -259,7 +428,8 @@
     "src": "src/routes/api/cache/test/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service2.js"
+      "_service3.js",
+      "_redis.js"
     ]
   },
   "src/routes/api/email/test/+server.ts": {
@@ -268,6 +438,7 @@
     "src": "src/routes/api/email/test/+server.ts",
     "isEntry": true,
     "imports": [
+      "_service4.js",
       "_templates.js"
     ]
   },
@@ -286,7 +457,50 @@
     "src": "src/routes/api/health/+server.ts",
     "isEntry": true,
     "imports": [
-      "_db.js"
+      "src/lib/server/db.ts"
+    ]
+  },
+  "src/routes/api/monitoring/evaluate-all/+server.ts": {
+    "file": "entries/endpoints/api/monitoring/evaluate-all/_server.ts.js",
+    "name": "entries/endpoints/api/monitoring/evaluate-all/_server.ts",
+    "src": "src/routes/api/monitoring/evaluate-all/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_jwt.js",
+      "_evaluation_service.js",
+      "src/lib/db/connection.ts",
+      "_users.js",
+      "src/lib/server/db.ts"
+    ]
+  },
+  "src/routes/api/monitoring/status/+server.ts": {
+    "file": "entries/endpoints/api/monitoring/status/_server.ts.js",
+    "name": "entries/endpoints/api/monitoring/status/_server.ts",
+    "src": "src/routes/api/monitoring/status/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_jwt.js",
+      "src/lib/server/db.ts",
+      "_users.js",
+      "_evaluation_service.js",
+      "_service4.js",
+      "_job_queue_simple.js",
+      "src/lib/db/connection.ts"
+    ]
+  },
+  "src/routes/api/monitoring/test/+server.ts": {
+    "file": "entries/endpoints/api/monitoring/test/_server.ts.js",
+    "name": "entries/endpoints/api/monitoring/test/_server.ts",
+    "src": "src/routes/api/monitoring/test/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_jwt.js",
+      "src/lib/server/db.ts",
+      "_users.js",
+      "_evaluation_service.js",
+      "_service4.js",
+      "_job_queue_simple.js",
+      "_monitor_service.js"
     ]
   },
   "src/routes/api/monitors/+server.ts": {
@@ -295,7 +509,11 @@
     "src": "src/routes/api/monitors/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service3.js",
+      "src/lib/server/db.ts",
+      "_users.js",
+      "_service4.js",
+      "_evaluation_service.js",
+      "_monitor_service.js",
       "_jwt.js"
     ]
   },
@@ -305,8 +523,106 @@
     "src": "src/routes/api/monitors/[id]/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service3.js",
+      "_service5.js",
       "_jwt.js"
+    ]
+  },
+  "src/routes/api/monitors/[id]/chart/+server.ts": {
+    "file": "entries/endpoints/api/monitors/_id_/chart/_server.ts.js",
+    "name": "entries/endpoints/api/monitors/_id_/chart/_server.ts",
+    "src": "src/routes/api/monitors/[id]/chart/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_historical_service.js",
+      "_service2.js",
+      "src/lib/server/db.ts",
+      "_users.js",
+      "_service4.js",
+      "_evaluation_service.js",
+      "_monitor_service.js"
+    ]
+  },
+  "src/routes/api/monitors/[id]/evaluate/+server.ts": {
+    "file": "entries/endpoints/api/monitors/_id_/evaluate/_server.ts.js",
+    "name": "entries/endpoints/api/monitors/_id_/evaluate/_server.ts",
+    "src": "src/routes/api/monitors/[id]/evaluate/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_jwt.js",
+      "src/lib/server/db.ts",
+      "_users.js",
+      "_service4.js",
+      "_evaluation_service.js",
+      "_monitor_service.js"
+    ]
+  },
+  "src/routes/api/monitors/[id]/history/+server.ts": {
+    "file": "entries/endpoints/api/monitors/_id_/history/_server.ts.js",
+    "name": "entries/endpoints/api/monitors/_id_/history/_server.ts",
+    "src": "src/routes/api/monitors/[id]/history/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_historical_service.js",
+      "_service2.js",
+      "src/lib/server/db.ts",
+      "_users.js",
+      "_service4.js",
+      "_evaluation_service.js",
+      "_monitor_service.js"
+    ]
+  },
+  "src/routes/api/monitors/[id]/insights/+server.ts": {
+    "file": "entries/endpoints/api/monitors/_id_/insights/_server.ts.js",
+    "name": "entries/endpoints/api/monitors/_id_/insights/_server.ts",
+    "src": "src/routes/api/monitors/[id]/insights/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_jwt.js",
+      "src/lib/db/connection.ts",
+      "_users.js"
+    ]
+  },
+  "src/routes/api/monitors/[id]/mini-chart-data/+server.ts": {
+    "file": "entries/endpoints/api/monitors/_id_/mini-chart-data/_server.ts.js",
+    "name": "entries/endpoints/api/monitors/_id_/mini-chart-data/_server.ts",
+    "src": "src/routes/api/monitors/[id]/mini-chart-data/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_jwt.js",
+      "src/lib/db/connection.ts",
+      "_users.js"
+    ]
+  },
+  "src/routes/api/monitors/[id]/refresh/+server.ts": {
+    "file": "entries/endpoints/api/monitors/_id_/refresh/_server.ts.js",
+    "name": "entries/endpoints/api/monitors/_id_/refresh/_server.ts",
+    "src": "src/routes/api/monitors/[id]/refresh/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "src/lib/server/db.ts",
+      "_users.js",
+      "_service4.js",
+      "_evaluation_service.js",
+      "_monitor_service.js",
+      "_redis.js",
+      "_service2.js"
+    ],
+    "dynamicImports": [
+      "src/lib/server/monitoring/index.ts"
+    ]
+  },
+  "src/routes/api/monitors/[id]/stats/+server.ts": {
+    "file": "entries/endpoints/api/monitors/_id_/stats/_server.ts.js",
+    "name": "entries/endpoints/api/monitors/_id_/stats/_server.ts",
+    "src": "src/routes/api/monitors/[id]/stats/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_jwt.js",
+      "src/lib/server/db.ts",
+      "_users.js",
+      "_service4.js",
+      "_evaluation_service.js",
+      "_monitor_service.js"
     ]
   },
   "src/routes/api/monitors/[id]/toggle/+server.ts": {
@@ -315,8 +631,167 @@
     "src": "src/routes/api/monitors/[id]/toggle/+server.ts",
     "isEntry": true,
     "imports": [
-      "_service3.js",
+      "_service5.js",
       "_jwt.js"
+    ]
+  },
+  "src/routes/api/monitors/drafts/+server.ts": {
+    "file": "entries/endpoints/api/monitors/drafts/_server.ts.js",
+    "name": "entries/endpoints/api/monitors/drafts/_server.ts",
+    "src": "src/routes/api/monitors/drafts/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_jwt.js",
+      "src/lib/db/connection.ts",
+      "_users.js"
+    ]
+  },
+  "src/routes/api/monitors/drafts/save/+server.ts": {
+    "file": "entries/endpoints/api/monitors/drafts/save/_server.ts.js",
+    "name": "entries/endpoints/api/monitors/drafts/save/_server.ts",
+    "src": "src/routes/api/monitors/drafts/save/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_jwt.js",
+      "src/lib/db/connection.ts",
+      "_users.js"
+    ]
+  },
+  "src/routes/api/monitors/test/+server.ts": {
+    "file": "entries/endpoints/api/monitors/test/_server.ts.js",
+    "name": "entries/endpoints/api/monitors/test/_server.ts",
+    "src": "src/routes/api/monitors/test/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_jwt.js",
+      "src/lib/server/db.ts",
+      "_users.js",
+      "_service4.js",
+      "_evaluation_service.js",
+      "_monitor_service.js"
+    ]
+  },
+  "src/routes/api/user/change-password/+server.ts": {
+    "file": "entries/endpoints/api/user/change-password/_server.ts.js",
+    "name": "entries/endpoints/api/user/change-password/_server.ts",
+    "src": "src/routes/api/user/change-password/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_service6.js",
+      "_service2.js"
+    ]
+  },
+  "src/routes/api/user/delete-account/+server.ts": {
+    "file": "entries/endpoints/api/user/delete-account/_server.ts.js",
+    "name": "entries/endpoints/api/user/delete-account/_server.ts",
+    "src": "src/routes/api/user/delete-account/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_service6.js",
+      "_service2.js"
+    ],
+    "dynamicImports": [
+      "src/lib/server/db.ts",
+      "_users.js",
+      "_service2.js"
+    ]
+  },
+  "src/routes/api/user/export-data/+server.ts": {
+    "file": "entries/endpoints/api/user/export-data/_server.ts.js",
+    "name": "entries/endpoints/api/user/export-data/_server.ts",
+    "src": "src/routes/api/user/export-data/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_service6.js",
+      "_service2.js"
+    ]
+  },
+  "src/routes/api/user/preferences/+server.ts": {
+    "file": "entries/endpoints/api/user/preferences/_server.ts.js",
+    "name": "entries/endpoints/api/user/preferences/_server.ts",
+    "src": "src/routes/api/user/preferences/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_service6.js",
+      "_service2.js"
+    ]
+  },
+  "src/routes/api/user/profile/+server.ts": {
+    "file": "entries/endpoints/api/user/profile/_server.ts.js",
+    "name": "entries/endpoints/api/user/profile/_server.ts",
+    "src": "src/routes/api/user/profile/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_service6.js",
+      "_service2.js"
+    ]
+  },
+  "src/routes/api/user/sessions/+server.ts": {
+    "file": "entries/endpoints/api/user/sessions/_server.ts.js",
+    "name": "entries/endpoints/api/user/sessions/_server.ts",
+    "src": "src/routes/api/user/sessions/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_service6.js",
+      "_service2.js"
+    ]
+  },
+  "src/routes/dashboard/+page.svelte": {
+    "file": "entries/pages/dashboard/_page.svelte.js",
+    "name": "entries/pages/dashboard/_page.svelte",
+    "src": "src/routes/dashboard/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index3.js",
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.C9EmgHon.css"
+    ]
+  },
+  "src/routes/monitors/+layout.svelte": {
+    "file": "entries/pages/monitors/_layout.svelte.js",
+    "name": "entries/pages/monitors/_layout.svelte",
+    "src": "src/routes/monitors/+layout.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index3.js"
+    ]
+  },
+  "src/routes/monitors/create/+page.svelte": {
+    "file": "entries/pages/monitors/create/_page.svelte.js",
+    "name": "entries/pages/monitors/create/_page.svelte",
+    "src": "src/routes/monitors/create/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index3.js",
+      "_client.js",
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.CiNGoLrz.css"
+    ]
+  },
+  "src/routes/settings/+page.svelte": {
+    "file": "entries/pages/settings/_page.svelte.js",
+    "name": "entries/pages/settings/_page.svelte",
+    "src": "src/routes/settings/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index3.js"
+    ]
+  },
+  "src/routes/settings/email-templates/+page.svelte": {
+    "file": "entries/pages/settings/email-templates/_page.svelte.js",
+    "name": "entries/pages/settings/email-templates/_page.svelte",
+    "src": "src/routes/settings/email-templates/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index3.js",
+      "_client.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.Cz0jMvFI.css"
     ]
   }
 }

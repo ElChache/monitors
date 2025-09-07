@@ -25,12 +25,12 @@ const listMonitorsSchema = z.object({
 export const GET: RequestHandler = async ({ request, cookies, url }) => {
   try {
     // Verify authentication
-    const sessionToken = cookies.get('session');
-    if (!sessionToken) {
+    const accessToken = cookies.get('access_token');
+    if (!accessToken) {
       throw error(401, 'Authentication required');
     }
 
-    const payload = JWTService.verifyAccessToken(sessionToken);
+    const payload = JWTService.verifyAccessToken(accessToken);
     if (!payload) {
       throw error(401, 'Invalid session token');
     }
@@ -91,12 +91,12 @@ export const GET: RequestHandler = async ({ request, cookies, url }) => {
 export const POST: RequestHandler = async ({ request, cookies }) => {
   try {
     // Verify authentication
-    const sessionToken = cookies.get('session');
-    if (!sessionToken) {
+    const accessToken = cookies.get('access_token');
+    if (!accessToken) {
       throw error(401, 'Authentication required');
     }
 
-    const payload = JWTService.verifyAccessToken(sessionToken);
+    const payload = JWTService.verifyAccessToken(accessToken);
     if (!payload) {
       throw error(401, 'Invalid session token');
     }

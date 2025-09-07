@@ -1,165 +1,604 @@
-import { z } from "zod";
-import { eq, or, ilike, count, and, asc, desc } from "drizzle-orm";
-import { d as db } from "./db.js";
-import { f as monitors } from "./users.js";
-const createMonitorSchema = z.object({
-  name: z.string().min(1, "Monitor name is required").max(100, "Monitor name must be 100 characters or less"),
-  prompt: z.string().min(10, "Prompt must be at least 10 characters").max(1e3, "Prompt must be 1000 characters or less"),
-  type: z.enum(["state", "change"], {
-    errorMap: () => ({ message: 'Type must be either "state" or "change"' })
-  }),
-  extractedFact: z.string().min(1, "Extracted fact is required"),
-  triggerCondition: z.string().min(1, "Trigger condition is required"),
-  factType: z.enum(["number", "string", "boolean", "object"], {
-    errorMap: () => ({ message: "Fact type must be number, string, boolean, or object" })
+import { g as getRedisClient, R as RedisCache } from "./redis.js";
+import { db } from "./db.js";
+import { pgTable, timestamp, text, boolean, varchar, uuid, index } from "drizzle-orm/pg-core";
+const cacheEvents = pgTable(
+  "cache_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    operation: varchar("operation", { length: 20 }).notNull().$type(),
+    cacheType: varchar("cache_type", { length: 20 }).notNull().$type(),
+    key: varchar("key", { length: 255 }).notNull(),
+    // Cache key (without prefix)
+    hit: boolean("hit").notNull().default(false),
+    // Whether operation was successful/hit
+    timestamp: timestamp("timestamp", { withTimezone: true }).notNull().defaultNow(),
+    // Optional metadata for debugging
+    metadata: text("metadata"),
+    // JSON string for additional context
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({
+    operationIdx: index("cache_events_operation_idx").on(table.operation),
+    cacheTypeIdx: index("cache_events_cache_type_idx").on(table.cacheType),
+    hitIdx: index("cache_events_hit_idx").on(table.hit),
+    timestampIdx: index("cache_events_timestamp_idx").on(table.timestamp),
+    typeTimestampIdx: index("cache_events_type_timestamp_idx").on(table.cacheType, table.timestamp),
+    keyIdx: index("cache_events_key_idx").on(table.key)
   })
-});
-const updateMonitorSchema = z.object({
-  name: z.string().min(1, "Monitor name is required").max(100, "Monitor name must be 100 characters or less").optional(),
-  prompt: z.string().min(10, "Prompt must be at least 10 characters").max(1e3, "Prompt must be 1000 characters or less").optional(),
-  type: z.enum(["state", "change"], {
-    errorMap: () => ({ message: 'Type must be either "state" or "change"' })
-  }).optional(),
-  extractedFact: z.string().min(1, "Extracted fact is required").optional(),
-  triggerCondition: z.string().min(1, "Trigger condition is required").optional(),
-  factType: z.enum(["number", "string", "boolean", "object"], {
-    errorMap: () => ({ message: "Fact type must be number, string, boolean, or object" })
-  }).optional(),
-  isActive: z.boolean().optional()
-});
-const listMonitorsSchema = z.object({
-  page: z.string().regex(/^\d+$/).transform(Number).pipe(z.number().min(1)).optional().default("1"),
-  limit: z.string().regex(/^\d+$/).transform(Number).pipe(z.number().min(1).max(100)).optional().default("20"),
-  type: z.enum(["state", "change"]).optional(),
-  isActive: z.enum(["true", "false"]).transform((val) => val === "true").optional(),
-  search: z.string().max(100).optional(),
-  sortBy: z.enum(["name", "createdAt", "lastChecked", "triggerCount"]).optional().default("createdAt"),
-  sortOrder: z.enum(["asc", "desc"]).optional().default("desc")
-});
-const monitorIdSchema = z.object({
-  id: z.string().uuid("Invalid monitor ID format")
-});
-class MonitorService {
+);
+class CacheTrackingService {
   /**
-   * Create a new monitor for a user
+   * Log cache operation event
    */
-  static async createMonitor(userId, data) {
-    const result = await db.insert(monitors).values({
-      userId,
-      name: data.name,
-      prompt: data.prompt,
-      type: data.type,
-      extractedFact: data.extractedFact,
-      triggerCondition: data.triggerCondition,
-      factType: data.factType,
-      createdAt: /* @__PURE__ */ new Date(),
-      updatedAt: /* @__PURE__ */ new Date()
-    }).returning();
-    return result[0];
+  static async logCacheEvent(operation, cacheType, key, hit) {
+    try {
+      if (process.env.NODE_ENV === "development" || process.env.CACHE_DETAILED_LOGGING === "true") {
+        await db.insert(cacheEvents).values({
+          operation,
+          cacheType,
+          key,
+          hit,
+          timestamp: /* @__PURE__ */ new Date()
+        });
+      }
+    } catch (error) {
+      console.error("Failed to log cache event:", error);
+    }
   }
   /**
-   * Get monitors for a user with filtering and pagination
+   * Get cache hit rate statistics
    */
-  static async getMonitors(userId, query) {
-    const { page, limit, type, isActive, search, sortBy, sortOrder } = query;
-    const offset = (page - 1) * limit;
-    const whereConditions = [eq(monitors.userId, userId)];
-    if (type) {
-      whereConditions.push(eq(monitors.type, type));
+  static async getCacheHitRate(cacheType, timeRange) {
+    try {
+      let query = db.select().from(cacheEvents);
+      const conditions = [];
+      if (cacheType) {
+        conditions.push(`cache_type = '${cacheType}'`);
+      }
+      if (timeRange) {
+        conditions.push(`timestamp >= '${timeRange.start.toISOString()}'`);
+        conditions.push(`timestamp <= '${timeRange.end.toISOString()}'`);
+      }
+      const events = await query.execute();
+      const totalEvents = events.length;
+      const hits = events.filter((event) => event.hit).length;
+      const misses = totalEvents - hits;
+      const hitRate = totalEvents > 0 ? hits / totalEvents * 100 : 0;
+      return {
+        totalEvents,
+        hits,
+        misses,
+        hitRate: Math.round(hitRate * 100) / 100
+      };
+    } catch (error) {
+      console.error("Failed to get cache hit rate:", error);
+      return {
+        totalEvents: 0,
+        hits: 0,
+        misses: 0,
+        hitRate: 0
+      };
     }
-    if (isActive !== void 0) {
-      whereConditions.push(eq(monitors.isActive, isActive));
+  }
+  /**
+   * Get cache performance statistics by type
+   */
+  static async getCacheStatsByType() {
+    try {
+      const cacheTypes = [
+        "session",
+        "monitor",
+        "ai_response",
+        "user",
+        "email",
+        "rate_limit"
+      ];
+      const stats = {};
+      for (const type of cacheTypes) {
+        stats[type] = await this.getCacheHitRate(type);
+      }
+      return stats;
+    } catch (error) {
+      console.error("Failed to get cache stats by type:", error);
+      return {};
     }
-    if (search) {
-      whereConditions.push(
-        or(
-          ilike(monitors.name, `%${search}%`),
-          ilike(monitors.prompt, `%${search}%`)
-        )
+  }
+  /**
+   * Get most frequently accessed cache keys
+   */
+  static async getTopCacheKeys(cacheType, limit = 10) {
+    try {
+      const events = await db.select().from(cacheEvents).execute();
+      const keyStats = {};
+      events.forEach((event) => {
+        if (cacheType && event.cacheType !== cacheType) {
+          return;
+        }
+        if (!keyStats[event.key]) {
+          keyStats[event.key] = { total: 0, hits: 0 };
+        }
+        keyStats[event.key].total++;
+        if (event.hit) {
+          keyStats[event.key].hits++;
+        }
+      });
+      return Object.entries(keyStats).map(([key, stats]) => ({
+        key,
+        accessCount: stats.total,
+        hitRate: Math.round(stats.hits / stats.total * 1e4) / 100
+      })).sort((a, b) => b.accessCount - a.accessCount).slice(0, limit);
+    } catch (error) {
+      console.error("Failed to get top cache keys:", error);
+      return [];
+    }
+  }
+  /**
+   * Get cache performance over time
+   */
+  static async getCachePerformanceOverTime(cacheType, timeRange = {
+    start: new Date(Date.now() - 24 * 60 * 60 * 1e3),
+    // 24 hours ago
+    end: /* @__PURE__ */ new Date()
+  }) {
+    try {
+      const events = await db.select().from(cacheEvents).execute();
+      const hourlyStats = {};
+      events.forEach((event) => {
+        if (event.timestamp < timeRange.start || event.timestamp > timeRange.end) {
+          return;
+        }
+        if (cacheType && event.cacheType !== cacheType) {
+          return;
+        }
+        const hour = new Date(event.timestamp).toISOString().slice(0, 13) + ":00:00";
+        if (!hourlyStats[hour]) {
+          hourlyStats[hour] = { total: 0, hits: 0 };
+        }
+        hourlyStats[hour].total++;
+        if (event.hit) {
+          hourlyStats[hour].hits++;
+        }
+      });
+      return Object.entries(hourlyStats).map(([hour, stats]) => ({
+        hour,
+        events: stats.total,
+        hits: stats.hits,
+        hitRate: Math.round(stats.hits / stats.total * 1e4) / 100
+      })).sort((a, b) => a.hour.localeCompare(b.hour));
+    } catch (error) {
+      console.error("Failed to get cache performance over time:", error);
+      return [];
+    }
+  }
+  /**
+   * Clean up old cache events (for maintenance)
+   */
+  static async cleanupOldEvents(olderThanDays = 7) {
+    try {
+      const cutoffDate = new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1e3);
+      const result = await db.delete(cacheEvents).where(`timestamp < '${cutoffDate.toISOString()}'`).execute();
+      console.log(`Cleaned up cache events older than ${cutoffDate.toISOString()}`);
+      return 0;
+    } catch (error) {
+      console.error("Failed to cleanup old cache events:", error);
+      return 0;
+    }
+  }
+  /**
+   * Get comprehensive cache analytics dashboard data
+   */
+  static async getCacheAnalytics() {
+    try {
+      const [overall, byType, topKeys, performance24h] = await Promise.all([
+        this.getCacheHitRate(),
+        this.getCacheStatsByType(),
+        this.getTopCacheKeys(void 0, 5),
+        this.getCachePerformanceOverTime()
+      ]);
+      return {
+        overall,
+        byType,
+        topKeys,
+        performance24h
+      };
+    } catch (error) {
+      console.error("Failed to get cache analytics:", error);
+      return {
+        overall: { totalEvents: 0, hits: 0, misses: 0, hitRate: 0 },
+        byType: {},
+        topKeys: [],
+        performance24h: []
+      };
+    }
+  }
+}
+const CACHE_PREFIXES = {
+  SESSION: "session:",
+  MONITOR: "monitor:",
+  AI_RESPONSE: "ai:",
+  USER: "user:",
+  EMAIL: "email:",
+  RATE_LIMIT: "rate_limit:"
+};
+const CACHE_TTL = {
+  SESSION: 24 * 60 * 60,
+  // 24 hours
+  MONITOR: 60 * 60,
+  // 1 hour
+  AI_RESPONSE: 24 * 60 * 60,
+  // 24 hours
+  USER: 30 * 60,
+  // 30 minutes
+  EMAIL: 10 * 60,
+  // 10 minutes
+  RATE_LIMIT: 24 * 60 * 60
+  // 24 hours
+};
+class CacheService {
+  static sessionCache = null;
+  static monitorCache = null;
+  static aiResponseCache = null;
+  static userCache = null;
+  static emailCache = null;
+  static rateLimitCache = null;
+  /**
+   * Initialize all cache instances
+   */
+  static async initializeCaches() {
+    const client = await getRedisClient();
+    if (!this.sessionCache) {
+      this.sessionCache = new RedisCache(client, CACHE_PREFIXES.SESSION);
+    }
+    if (!this.monitorCache) {
+      this.monitorCache = new RedisCache(client, CACHE_PREFIXES.MONITOR);
+    }
+    if (!this.aiResponseCache) {
+      this.aiResponseCache = new RedisCache(client, CACHE_PREFIXES.AI_RESPONSE);
+    }
+    if (!this.userCache) {
+      this.userCache = new RedisCache(client, CACHE_PREFIXES.USER);
+    }
+    if (!this.emailCache) {
+      this.emailCache = new RedisCache(client, CACHE_PREFIXES.EMAIL);
+    }
+    if (!this.rateLimitCache) {
+      this.rateLimitCache = new RedisCache(client, CACHE_PREFIXES.RATE_LIMIT);
+    }
+  }
+  /**
+   * Session caching methods
+   */
+  static async setSession(sessionId, sessionData) {
+    await this.initializeCaches();
+    const success = await this.sessionCache.set(sessionId, sessionData, CACHE_TTL.SESSION);
+    if (success) {
+      await CacheTrackingService.logCacheEvent(
+        "set",
+        "session",
+        sessionId,
+        true
       );
     }
-    const sortColumn = {
-      name: monitors.name,
-      createdAt: monitors.createdAt,
-      lastChecked: monitors.lastChecked,
-      triggerCount: monitors.triggerCount
-    }[sortBy];
-    const sortFunction = sortOrder === "asc" ? asc : desc;
-    const [totalResult] = await db.select({ count: count() }).from(monitors).where(and(...whereConditions));
-    const total = totalResult.count;
-    const result = await db.select().from(monitors).where(and(...whereConditions)).orderBy(sortFunction(sortColumn)).limit(limit).offset(offset);
+    return success;
+  }
+  static async getSession(sessionId) {
+    await this.initializeCaches();
+    const data = await this.sessionCache.get(sessionId);
+    await CacheTrackingService.logCacheEvent(
+      "get",
+      "session",
+      sessionId,
+      data !== null
+    );
+    return data;
+  }
+  static async deleteSession(sessionId) {
+    await this.initializeCaches();
+    const success = await this.sessionCache.del(sessionId);
+    if (success) {
+      await CacheTrackingService.logCacheEvent(
+        "delete",
+        "session",
+        sessionId,
+        true
+      );
+    }
+    return success;
+  }
+  /**
+   * Monitor caching methods
+   */
+  static async setMonitor(monitorId, monitorData) {
+    await this.initializeCaches();
+    const success = await this.monitorCache.set(monitorId, monitorData, CACHE_TTL.MONITOR);
+    if (success) {
+      await CacheTrackingService.logCacheEvent(
+        "set",
+        "monitor",
+        monitorId,
+        true
+      );
+    }
+    return success;
+  }
+  static async getMonitor(monitorId) {
+    await this.initializeCaches();
+    const data = await this.monitorCache.get(monitorId);
+    await CacheTrackingService.logCacheEvent(
+      "get",
+      "monitor",
+      monitorId,
+      data !== null
+    );
+    return data;
+  }
+  static async deleteMonitor(monitorId) {
+    await this.initializeCaches();
+    const success = await this.monitorCache.del(monitorId);
+    if (success) {
+      await CacheTrackingService.logCacheEvent(
+        "delete",
+        "monitor",
+        monitorId,
+        true
+      );
+    }
+    return success;
+  }
+  /**
+   * User monitor list caching
+   */
+  static async setUserMonitors(userId, monitors) {
+    await this.initializeCaches();
+    const key = `user_monitors:${userId}`;
+    const success = await this.monitorCache.set(key, monitors, CACHE_TTL.MONITOR);
+    if (success) {
+      await CacheTrackingService.logCacheEvent(
+        "set",
+        "monitor",
+        key,
+        true
+      );
+    }
+    return success;
+  }
+  static async getUserMonitors(userId) {
+    await this.initializeCaches();
+    const key = `user_monitors:${userId}`;
+    const data = await this.monitorCache.get(key);
+    await CacheTrackingService.logCacheEvent(
+      "get",
+      "monitor",
+      key,
+      data !== null
+    );
+    return data;
+  }
+  static async invalidateUserMonitors(userId) {
+    await this.initializeCaches();
+    const key = `user_monitors:${userId}`;
+    const success = await this.monitorCache.del(key);
+    if (success) {
+      await CacheTrackingService.logCacheEvent(
+        "delete",
+        "monitor",
+        key,
+        true
+      );
+    }
+    return success;
+  }
+  /**
+   * AI response caching methods
+   */
+  static async setAIResponse(prompt, response) {
+    await this.initializeCaches();
+    const key = this.generateAIPromptHash(prompt);
+    const success = await this.aiResponseCache.set(key, response, CACHE_TTL.AI_RESPONSE);
+    if (success) {
+      await CacheTrackingService.logCacheEvent(
+        "set",
+        "ai_response",
+        key,
+        true
+      );
+    }
+    return success;
+  }
+  static async getAIResponse(prompt) {
+    await this.initializeCaches();
+    const key = this.generateAIPromptHash(prompt);
+    const data = await this.aiResponseCache.get(key);
+    await CacheTrackingService.logCacheEvent(
+      "get",
+      "ai_response",
+      key,
+      data !== null
+    );
+    return data;
+  }
+  /**
+   * Generate consistent hash for AI prompts
+   */
+  static generateAIPromptHash(prompt) {
+    let hash = 0;
+    for (let i = 0; i < prompt.length; i++) {
+      const char = prompt.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(36);
+  }
+  /**
+   * User data caching methods
+   */
+  static async setUser(userId, userData) {
+    await this.initializeCaches();
+    const success = await this.userCache.set(userId, userData, CACHE_TTL.USER);
+    if (success) {
+      await CacheTrackingService.logCacheEvent(
+        "set",
+        "user",
+        userId,
+        true
+      );
+    }
+    return success;
+  }
+  static async getUser(userId) {
+    await this.initializeCaches();
+    const data = await this.userCache.get(userId);
+    await CacheTrackingService.logCacheEvent(
+      "get",
+      "user",
+      userId,
+      data !== null
+    );
+    return data;
+  }
+  static async deleteUser(userId) {
+    await this.initializeCaches();
+    const success = await this.userCache.del(userId);
+    if (success) {
+      await CacheTrackingService.logCacheEvent(
+        "delete",
+        "user",
+        userId,
+        true
+      );
+    }
+    return success;
+  }
+  /**
+   * Rate limiting methods
+   */
+  static async incrementRateLimit(identifier, limitType, ttl = CACHE_TTL.RATE_LIMIT) {
+    await this.initializeCaches();
+    const key = `${limitType}:${identifier}`;
+    const current = await this.rateLimitCache.incr(key);
+    if (current === 1) {
+      await this.rateLimitCache.expire(key, ttl);
+    }
+    await CacheTrackingService.logCacheEvent(
+      "incr",
+      "rate_limit",
+      key,
+      true
+    );
+    return current;
+  }
+  static async getRateLimit(identifier, limitType) {
+    await this.initializeCaches();
+    const key = `${limitType}:${identifier}`;
+    const [current, ttl] = await Promise.all([
+      this.rateLimitCache.get(key),
+      this.rateLimitCache.ttl(key)
+    ]);
+    await CacheTrackingService.logCacheEvent(
+      "get",
+      "rate_limit",
+      key,
+      current !== null
+    );
     return {
-      monitors: result,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
+      current: current || 0,
+      ttl
     };
   }
   /**
-   * Get a specific monitor by ID (with user ownership check)
+   * Email template caching methods
    */
-  static async getMonitorById(userId, monitorId) {
-    const result = await db.select().from(monitors).where(and(
-      eq(monitors.id, monitorId),
-      eq(monitors.userId, userId)
-    )).limit(1);
-    return result.length > 0 ? result[0] : null;
-  }
-  /**
-   * Update a monitor (with user ownership check)
-   */
-  static async updateMonitor(userId, monitorId, data) {
-    const existingMonitor = await this.getMonitorById(userId, monitorId);
-    if (!existingMonitor) {
-      return null;
+  static async setEmailTemplate(templateName, templateData) {
+    await this.initializeCaches();
+    const success = await this.emailCache.set(templateName, templateData, CACHE_TTL.EMAIL);
+    if (success) {
+      await CacheTrackingService.logCacheEvent(
+        "set",
+        "email",
+        templateName,
+        true
+      );
     }
-    const result = await db.update(monitors).set({
-      ...data,
-      updatedAt: /* @__PURE__ */ new Date()
-    }).where(and(
-      eq(monitors.id, monitorId),
-      eq(monitors.userId, userId)
-    )).returning();
-    return result.length > 0 ? result[0] : null;
+    return success;
+  }
+  static async getEmailTemplate(templateName) {
+    await this.initializeCaches();
+    const data = await this.emailCache.get(templateName);
+    await CacheTrackingService.logCacheEvent(
+      "get",
+      "email",
+      templateName,
+      data !== null
+    );
+    return data;
   }
   /**
-   * Delete a monitor (with user ownership check)
+   * Bulk cache operations
    */
-  static async deleteMonitor(userId, monitorId) {
-    const result = await db.delete(monitors).where(and(
-      eq(monitors.id, monitorId),
-      eq(monitors.userId, userId)
-    )).returning({ id: monitors.id });
-    return result.length > 0;
+  static async invalidateUserCache(userId) {
+    await this.initializeCaches();
+    await this.deleteUser(userId);
+    await this.invalidateUserMonitors(userId);
+    await this.sessionCache.delPattern(`*${userId}*`);
+    await CacheTrackingService.logCacheEvent(
+      "invalidate",
+      "user_bulk",
+      userId,
+      true
+    );
   }
   /**
-   * Check if user has reached monitor creation limits
-   * (This could be expanded for different user tiers)
+   * Cache statistics and monitoring
    */
-  static async getUserMonitorCount(userId) {
-    const result = await db.select({ count: count() }).from(monitors).where(eq(monitors.userId, userId));
-    return result[0].count;
+  static async getCacheStats() {
+    await this.initializeCaches();
+    return {
+      session: await this.sessionCache.getStats(),
+      monitor: await this.monitorCache.getStats(),
+      aiResponse: await this.aiResponseCache.getStats(),
+      user: await this.userCache.getStats(),
+      email: await this.emailCache.getStats(),
+      rateLimit: await this.rateLimitCache.getStats()
+    };
   }
   /**
-   * Toggle monitor active status
+   * Health check
    */
-  static async toggleMonitorActive(userId, monitorId) {
-    const existingMonitor = await this.getMonitorById(userId, monitorId);
-    if (!existingMonitor) {
-      return null;
+  static async healthCheck() {
+    try {
+      await this.initializeCaches();
+      const testKey = "health_check_test";
+      const testValue = { timestamp: (/* @__PURE__ */ new Date()).toISOString() };
+      const cacheTests = {
+        session: await this.sessionCache.set(testKey, testValue, 10) && await this.sessionCache.get(testKey) !== null && await this.sessionCache.del(testKey),
+        monitor: await this.monitorCache.set(testKey, testValue, 10) && await this.monitorCache.get(testKey) !== null && await this.monitorCache.del(testKey),
+        aiResponse: await this.aiResponseCache.set(testKey, testValue, 10) && await this.aiResponseCache.get(testKey) !== null && await this.aiResponseCache.del(testKey),
+        user: await this.userCache.set(testKey, testValue, 10) && await this.userCache.get(testKey) !== null && await this.userCache.del(testKey),
+        email: await this.emailCache.set(testKey, testValue, 10) && await this.emailCache.get(testKey) !== null && await this.emailCache.del(testKey),
+        rateLimit: await this.rateLimitCache.set(testKey, testValue, 10) && await this.rateLimitCache.get(testKey) !== null && await this.rateLimitCache.del(testKey)
+      };
+      const allCachesHealthy = Object.values(cacheTests).every((test) => test === true);
+      return {
+        redis: allCachesHealthy,
+        caches: cacheTests
+      };
+    } catch (error) {
+      console.error("Cache health check failed:", error);
+      return {
+        redis: false,
+        caches: {
+          session: false,
+          monitor: false,
+          aiResponse: false,
+          user: false,
+          email: false,
+          rateLimit: false
+        }
+      };
     }
-    return this.updateMonitor(userId, monitorId, {
-      isActive: !existingMonitor.isActive
-    });
   }
 }
 export {
-  MonitorService as M,
-  createMonitorSchema as c,
-  listMonitorsSchema as l,
-  monitorIdSchema as m,
-  updateMonitorSchema as u
+  CacheService as C,
+  CacheTrackingService as a
 };

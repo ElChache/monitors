@@ -160,6 +160,31 @@ export const rateLimits = pgTable(
   })
 );
 
+// Monitor drafts - auto-save user input during monitor creation
+export const monitorDrafts = pgTable(
+  'monitor_drafts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    prompt: text('prompt').notNull(),
+    name: varchar('name', { length: 100 }),
+    monitorType: varchar('monitor_type', { length: 10 }).$type<'state' | 'change'>(),
+    extractedFact: text('extracted_fact'),
+    triggerCondition: text('trigger_condition'),
+    factType: varchar('fact_type', { length: 20 }).$type<'number' | 'string' | 'boolean' | 'object'>(),
+    aiSuggestions: jsonb('ai_suggestions'), // Store AI suggestions for the draft
+    
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    userIdx: index('monitor_drafts_user_idx').on(table.userId),
+    updatedAtIdx: index('monitor_drafts_updated_at_idx').on(table.updatedAt),
+  })
+);
+
 // Define relationships
 export const monitorsRelations = relations(monitors, ({ one, many }) => ({
   user: one(users, {

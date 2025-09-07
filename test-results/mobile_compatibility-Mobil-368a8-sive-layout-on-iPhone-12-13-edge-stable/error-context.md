@@ -1,0 +1,49 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - navigation "Breadcrumb" [ref=e5]:
+      - list [ref=e6]:
+        - listitem [ref=e7]:
+          - link "Home Dashboard" [ref=e8] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e9] [cursor=pointer]: Home
+            - text: Dashboard
+        - listitem [ref=e10]:
+          - generic [ref=e11]:
+            - generic [ref=e12]: /
+            - generic [ref=e13]: Create Monitor
+    - heading "Create Your Monitor" [level=1] [ref=e14]
+    - paragraph [ref=e15]: Describe what you want to track in plain English
+  - generic [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e19]: What do you want to monitor?
+      - generic [ref=e20]:
+        - textbox "What do you want to monitor?" [ref=e21]
+        - generic [ref=e22]: 0/500
+    - generic [ref=e23]:
+      - link "Cancel" [ref=e24] [cursor=pointer]:
+        - /url: /
+      - button "Create Monitor" [disabled] [ref=e25]
+  - generic [ref=e26]:
+    - heading "Need inspiration? Try these examples:" [level=3] [ref=e27]
+    - generic [ref=e28]:
+      - button "\"Tell me when Tesla stock drops below $200\"" [ref=e29]:
+        - paragraph [ref=e30]: "\"Tell me when Tesla stock drops below $200\""
+      - button "\"Alert me when it's going to rain for 3 days in Seattle\"" [ref=e31]:
+        - paragraph [ref=e32]: "\"Alert me when it's going to rain for 3 days in Seattle\""
+      - button "\"Notify when Bitcoin rises 10% in 24 hours\"" [ref=e33]:
+        - paragraph [ref=e34]: "\"Notify when Bitcoin rises 10% in 24 hours\""
+      - button "\"Let me know when iPhone 15 Pro is back in stock at Apple Store\"" [ref=e35]:
+        - paragraph [ref=e36]: "\"Let me know when iPhone 15 Pro is back in stock at Apple Store\""
+      - button "\"Track when gas prices in San Francisco drop below $4.50\"" [ref=e37]:
+        - paragraph [ref=e38]: "\"Track when gas prices in San Francisco drop below $4.50\""
+  - generic [ref=e39]:
+    - heading "Tips for creating great monitors:" [level=4] [ref=e40]
+    - list [ref=e41]:
+      - listitem [ref=e42]: • Be specific about what you want to track (stocks, weather, prices, etc.)
+      - listitem [ref=e43]: • Include trigger conditions (when price drops below X, when it rains for X days)
+      - listitem [ref=e44]: • Use natural language - write like you're talking to a friend
+      - listitem [ref=e45]: • Include locations when relevant (weather, gas prices, local events)
+```

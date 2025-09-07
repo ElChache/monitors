@@ -37,9 +37,18 @@
 		font-family: system-ui, -apple-system, sans-serif;
 	}
 	
+	/* Mobile-first responsive design */
+	@media (max-width: 768px) {
+		main {
+			padding: 1rem;
+			max-width: 100%;
+		}
+	}
+	
 	h1 {
 		color: #333;
 		margin-bottom: 1rem;
+		font-size: clamp(1.5rem, 4vw, 2.5rem);
 	}
 	
 	.status {
@@ -49,8 +58,17 @@
 		border-radius: 8px;
 	}
 	
+	/* Touch-friendly mobile optimization */
+	@media (max-width: 768px) {
+		.status {
+			margin-top: 1.5rem;
+			padding: 1.5rem;
+		}
+	}
+	
 	.status h2 {
 		margin-top: 0;
 		color: #555;
+		font-size: clamp(1.1rem, 3vw, 1.3rem);
 	}
 </style>

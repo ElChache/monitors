@@ -1,5 +1,6 @@
 import { error, json } from "@sveltejs/kit";
-import { t as testRedisConnection, C as CacheService } from "../../../../../chunks/service2.js";
+import { C as CacheService } from "../../../../../chunks/service3.js";
+import { t as testRedisConnection } from "../../../../../chunks/redis.js";
 const GET = async () => {
   try {
     if (process.env.NODE_ENV === "production") {

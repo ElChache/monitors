@@ -1,5 +1,5 @@
-import { d as db } from "./db.js";
-import { c as emailNotifications, d as emailUnsubscribes } from "./users.js";
+import { db } from "./db.js";
+import { e as emailNotifications, d as emailUnsubscribes } from "./users.js";
 import { and, eq } from "drizzle-orm";
 const EMAIL_TEMPLATES = {
   MONITOR_NOTIFICATION: {

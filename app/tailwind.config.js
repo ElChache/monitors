@@ -21,17 +21,17 @@ export default {
         },
         // Monitors! Brand Colors from Visual Style Guide
         primary: {
-          DEFAULT: '#3498db', // Friendly Blue
-          50: '#ebf7ff',
-          100: '#d1edff',
-          200: '#aeddff',
-          300: '#7cc8ff',
-          400: '#43a9ff',
-          500: '#3498db', // Main brand color
-          600: '#1e7bbf',
-          700: '#1a6ba3',
-          800: '#1c5985',
-          900: '#1d4e6e',
+          DEFAULT: '#0d47a1', // Improved Accessible Blue with better contrast
+          50: '#e3f2fd',
+          100: '#bbdefb',
+          200: '#90caf9',
+          300: '#64b5f6',
+          400: '#42a5f5',
+          500: '#2196f3',
+          600: '#0d47a1', // Main brand color - WCAG compliant
+          700: '#1565c0',
+          800: '#0d47a1',
+          900: '#062046',
         },
         secondary: {
           DEFAULT: '#2ecc71', // Positive Green

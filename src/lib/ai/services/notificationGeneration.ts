@@ -515,8 +515,14 @@ Return ONLY the JSON response, no additional text.`;
   }
 }
 
-// Export singleton instance
-export const notificationGenerationService = new NotificationGenerationService();
+// Export lazy initialization function
+let _notificationGenerationServiceInstance: NotificationGenerationService | null = null;
+export const getNotificationGenerationService = (): NotificationGenerationService => {
+  if (!_notificationGenerationServiceInstance) {
+    _notificationGenerationServiceInstance = new NotificationGenerationService();
+  }
+  return _notificationGenerationServiceInstance;
+};
 
 /**
  * Convenience function for quick notification generation
@@ -529,7 +535,7 @@ export async function generateNotification(
     testMode?: boolean;
   }
 ): Promise<GeneratedNotification> {
-  return notificationGenerationService.generateNotification(context, options);
+  return getNotificationGenerationService().generateNotification(context, options);
 }
 
 /**
@@ -540,7 +546,7 @@ export function determineUrgency(
   notificationType: NotificationType,
   changePercentage?: number
 ): UrgencyLevel {
-  return notificationGenerationService.determineUrgencyLevel(
+  return getNotificationGenerationService().determineUrgencyLevel(
     monitorData,
     notificationType,
     changePercentage
@@ -551,5 +557,5 @@ export function determineUrgency(
  * Generate action recommendations
  */
 export function getActionRecommendations(context: NotificationContext): string[] {
-  return notificationGenerationService.generateActionRecommendations(context);
+  return getNotificationGenerationService().generateActionRecommendations(context);
 }

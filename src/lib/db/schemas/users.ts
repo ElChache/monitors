@@ -13,6 +13,8 @@ export const users = pgTable(
     passwordHash: text('password_hash'), // null for OAuth users
     googleId: varchar('google_id', { length: 100 }).unique(),
     isBetaUser: boolean('is_beta_user').notNull().default(false),
+    isAdmin: boolean('is_admin').notNull().default(false),
+    isActive: boolean('is_active').notNull().default(true),
     emailVerified: boolean('email_verified').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

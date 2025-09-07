@@ -41,5 +41,5 @@ const db = {
   }
 };
 export {
-  db as d
+  db
 };

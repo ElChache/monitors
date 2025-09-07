@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { A as AuthService } from "../../../../../chunks/service.js";
+import { A as AuthService } from "../../../../../chunks/service2.js";
 import { z } from "zod";
 const VerifyEmailSchema = z.object({
   token: z.string().min(1, "Verification token is required")

@@ -1,46 +1,5 @@
-import { N as getContext, G as push, O as push_element, Q as pop_element, K as pop, F as FILENAME } from "../../chunks/index.js";
-import { e as escape_html } from "../../chunks/escaping.js";
-import { n as noop } from "../../chunks/equality.js";
-import "@sveltejs/kit/internal";
-import { w as writable } from "../../chunks/exports.js";
-import "../../chunks/utils.js";
-function create_updated_store() {
-  const { set, subscribe } = writable(false);
-  {
-    return {
-      subscribe,
-      // eslint-disable-next-line @typescript-eslint/require-await
-      check: async () => false
-    };
-  }
-}
-const is_legacy = noop.toString().includes("$$") || /function \w+\(\) \{\}/.test(noop.toString());
-if (is_legacy) {
-  ({
-    data: {},
-    form: null,
-    error: null,
-    params: {},
-    route: { id: null },
-    state: {},
-    status: -1,
-    url: new URL("https://example.com")
-  });
-}
-const stores = {
-  updated: /* @__PURE__ */ create_updated_store()
-};
-{
-  const console_warn = console.warn;
-  console.warn = function warn(...args) {
-    if (args.length === 1 && /<(Layout|Page|Error)(_[\w$]+)?> was created (with unknown|without expected) prop '(data|form)'/.test(
-      args[0]
-    )) {
-      return;
-    }
-    console_warn(...args);
-  };
-}
+import { o as getContext, p as push, c as push_element, e as escape_html, d as pop_element, a as pop, F as FILENAME } from "../../chunks/index3.js";
+import { s as stores } from "../../chunks/client.js";
 ({
   check: stores.updated.check
 });

@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { A as AuthService } from "../../../../../chunks/service.js";
+import { A as AuthService } from "../../../../../chunks/service2.js";
 import { c as checkAuthLimit } from "../../../../../chunks/rateLimit.js";
 const POST = async ({ request, getClientAddress }) => {
   const clientIP = getClientAddress();

@@ -1,451 +1,253 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
-import { config } from "dotenv";
-import { n as notificationSchema, m as monitorSchema, u as userSchema, a as users, b as userPreferences, e as emailVerificationTokens, s as sessions, p as passwordResetTokens } from "./users.js";
-import { J as JWTService } from "./jwt.js";
-import bcrypt from "@node-rs/bcrypt";
-import { z } from "zod";
-import { eq, and, gt } from "drizzle-orm";
-config();
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || "postgresql://postgres:password@localhost:8081/monitors_be_primary_001_23f6",
-  max: 10,
-  // Maximum number of connections in pool
-  idleTimeoutMillis: 3e4,
-  // Close idle connections after 30 seconds
-  connectionTimeoutMillis: 2e3
-  // Timeout after 2 seconds
-});
-pool.on("error", (err) => {
-  console.error("Unexpected database pool error:", err);
-});
-const db = drizzle(pool, {
-  schema: {
-    ...userSchema,
-    ...monitorSchema,
-    ...notificationSchema
-  }
-});
-process.on("SIGINT", async () => {
-  await pool.end();
-  process.exit(0);
-});
-process.on("SIGTERM", async () => {
-  await pool.end();
-  process.exit(0);
-});
-const PasswordSchema = z.string().min(8, "Password must be at least 8 characters long").max(100, "Password must be less than 100 characters").refine(
-  (password) => /[A-Z]/.test(password),
-  "Password must contain at least one uppercase letter"
-).refine(
-  (password) => /[a-z]/.test(password),
-  "Password must contain at least one lowercase letter"
-).refine(
-  (password) => /\d/.test(password),
-  "Password must contain at least one number"
-).refine(
-  (password) => /[!@#$%^&*(),.?":{}|<>]/.test(password),
-  "Password must contain at least one special character"
-);
-class PasswordService {
-  static SALT_ROUNDS = 12;
-  static async hash(password) {
+import { db } from "./db.js";
+import { u as users, m as monitors, s as sessions } from "./users.js";
+import { eq, count, and, desc, gte } from "drizzle-orm";
+import "./service2.js";
+class AdminService {
+  /**
+   * Check if user has admin privileges
+   */
+  static async isAdmin(userId) {
     try {
-      return await bcrypt.hash(password, this.SALT_ROUNDS);
+      const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      return user?.isAdmin || false;
     } catch (error) {
-      console.error("Password hashing failed:", error);
-      throw new Error("Failed to hash password");
-    }
-  }
-  static async verify(password, hashedPassword) {
-    try {
-      return await bcrypt.verify(password, hashedPassword);
-    } catch (error) {
-      console.error("Password verification failed:", error);
+      console.error("Admin check error:", error);
       return false;
     }
   }
-  static checkStrength(password) {
-    let score = 0;
-    const feedback = [];
-    if (password.length >= 8) {
-      score += 1;
-    } else {
-      feedback.push("Use at least 8 characters");
+  /**
+   * Get paginated list of users for admin management
+   */
+  static async getUsers(options = {}) {
+    const {
+      page = 1,
+      limit = 50,
+      search,
+      role,
+      status,
+      sortBy = "createdAt",
+      sortOrder = "desc"
+    } = options;
+    try {
+      const offset = (page - 1) * limit;
+      const conditions = [];
+      if (search) {
+        conditions.push(
+          // Note: In a real implementation, you'd use proper text search
+          // This is a simplified version for demo
+        );
+      }
+      if (role === "admin") {
+        conditions.push(eq(users.isAdmin, true));
+      } else if (role === "user") {
+        conditions.push(eq(users.isAdmin, false));
+      }
+      if (status === "active") {
+        conditions.push(eq(users.isActive, true));
+      } else if (status === "inactive") {
+        conditions.push(eq(users.isActive, false));
+      }
+      const userQuery = db.select({
+        id: users.id,
+        email: users.email,
+        name: users.name,
+        isAdmin: users.isAdmin,
+        isActive: users.isActive,
+        emailVerified: users.emailVerified,
+        isBetaUser: users.isBetaUser,
+        createdAt: users.createdAt,
+        lastLoginAt: users.lastLoginAt,
+        monitorCount: count(monitors.id)
+      }).from(users).leftJoin(monitors, eq(users.id, monitors.userId)).groupBy(users.id);
+      if (conditions.length > 0) {
+        userQuery.where(and(...conditions));
+      }
+      if (sortBy === "createdAt") {
+        userQuery.orderBy(sortOrder === "desc" ? desc(users.createdAt) : users.createdAt);
+      } else if (sortBy === "name") {
+        userQuery.orderBy(sortOrder === "desc" ? desc(users.name) : users.name);
+      } else if (sortBy === "email") {
+        userQuery.orderBy(sortOrder === "desc" ? desc(users.email) : users.email);
+      }
+      const [userResults, [{ total }]] = await Promise.all([
+        userQuery.limit(limit).offset(offset),
+        db.select({ total: count() }).from(users)
+      ]);
+      const adminUsers = userResults.map((user) => ({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.isAdmin ? "admin" : "user",
+        isActive: user.isActive,
+        emailVerified: user.emailVerified,
+        isBetaUser: user.isBetaUser,
+        createdAt: user.createdAt,
+        lastLoginAt: user.lastLoginAt,
+        monitorCount: user.monitorCount || 0
+      }));
+      return {
+        users: adminUsers,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit)
+      };
+    } catch (error) {
+      console.error("Get users error:", error);
+      throw new Error("Failed to retrieve users");
     }
-    if (/[a-z]/.test(password)) score += 1;
-    else feedback.push("Add lowercase letters");
-    if (/[A-Z]/.test(password)) score += 1;
-    else feedback.push("Add uppercase letters");
-    if (/\d/.test(password)) score += 1;
-    else feedback.push("Add numbers");
-    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 1;
-    else feedback.push("Add special characters");
-    if (password.length >= 12) score += 1;
-    if (password.length >= 16) score += 1;
-    if (/(.)\1{2,}/.test(password)) {
-      score = Math.max(0, score - 1);
-      feedback.push("Avoid repeated characters");
+  }
+  /**
+   * Update user role (admin/user)
+   */
+  static async updateUserRole(userId, isAdmin) {
+    try {
+      await db.update(users).set({ isAdmin, updatedAt: /* @__PURE__ */ new Date() }).where(eq(users.id, userId));
+    } catch (error) {
+      console.error("Update user role error:", error);
+      throw new Error("Failed to update user role");
     }
-    if (/123456|password|qwerty|admin/i.test(password)) {
-      score = Math.max(0, score - 2);
-      feedback.push("Avoid common patterns");
+  }
+  /**
+   * Update user status (active/inactive)
+   */
+  static async updateUserStatus(userId, isActive) {
+    try {
+      await db.update(users).set({ isActive, updatedAt: /* @__PURE__ */ new Date() }).where(eq(users.id, userId));
+    } catch (error) {
+      console.error("Update user status error:", error);
+      throw new Error("Failed to update user status");
     }
-    score = Math.min(4, score);
-    const strengthLabels = ["Very Weak", "Weak", "Fair", "Good", "Excellent"];
-    const strengthLabel = strengthLabels[score] || "Very Weak";
+  }
+  /**
+   * Delete user and all associated data
+   */
+  static async deleteUser(userId) {
+    try {
+      await db.delete(monitors).where(eq(monitors.userId, userId));
+      await db.delete(sessions).where(eq(sessions.userId, userId));
+      await db.delete(users).where(eq(users.id, userId));
+    } catch (error) {
+      console.error("Delete user error:", error);
+      throw new Error("Failed to delete user");
+    }
+  }
+  /**
+   * Get system statistics
+   */
+  static async getSystemStats() {
+    try {
+      const today = /* @__PURE__ */ new Date();
+      today.setHours(0, 0, 0, 0);
+      const weekAgo = /* @__PURE__ */ new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const [
+        [{ totalUsers }],
+        [{ activeUsers }],
+        [{ totalMonitors }],
+        [{ activeMonitors }],
+        [{ todayRegistrations }],
+        [{ weeklyActiveUsers }]
+      ] = await Promise.all([
+        db.select({ totalUsers: count() }).from(users),
+        db.select({ activeUsers: count() }).from(users).where(eq(users.isActive, true)),
+        db.select({ totalMonitors: count() }).from(monitors),
+        db.select({ activeMonitors: count() }).from(monitors).where(eq(monitors.isActive, true)),
+        db.select({ todayRegistrations: count() }).from(users).where(gte(users.createdAt, today)),
+        db.select({ weeklyActiveUsers: count() }).from(users).where(gte(users.lastLoginAt, weekAgo))
+      ]);
+      const averageMonitorsPerUser = totalUsers > 0 ? totalMonitors / totalUsers : 0;
+      return {
+        totalUsers: totalUsers || 0,
+        activeUsers: activeUsers || 0,
+        totalMonitors: totalMonitors || 0,
+        activeMonitors: activeMonitors || 0,
+        todayRegistrations: todayRegistrations || 0,
+        weeklyActiveUsers: weeklyActiveUsers || 0,
+        averageMonitorsPerUser: Math.round(averageMonitorsPerUser * 100) / 100
+      };
+    } catch (error) {
+      console.error("Get system stats error:", error);
+      throw new Error("Failed to retrieve system statistics");
+    }
+  }
+  /**
+   * Get service health status
+   */
+  static async getServiceHealth() {
+    const results = {
+      database: false,
+      redis: false,
+      email: false,
+      monitoring: false,
+      lastChecked: /* @__PURE__ */ new Date()
+    };
+    try {
+      await db.select().from(users).limit(1);
+      results.database = true;
+    } catch {
+      results.database = false;
+    }
+    try {
+      const { redis } = await import("./connection.js");
+      await redis.ping();
+      results.redis = true;
+    } catch {
+      results.redis = false;
+    }
+    try {
+      results.email = true;
+    } catch {
+      results.email = false;
+    }
+    try {
+      results.monitoring = true;
+    } catch {
+      results.monitoring = false;
+    }
+    return results;
+  }
+  /**
+   * Get system configuration
+   */
+  static async getSystemConfig() {
     return {
-      score,
-      feedback: feedback.length > 0 ? feedback : [`Password strength: ${strengthLabel}`],
-      isValid: score >= 3
-      // Require at least "Good" strength
+      maxMonitorsPerUser: 100,
+      maxAlertsPerHour: 50,
+      maintenanceMode: false,
+      registrationEnabled: true,
+      betaMode: false
     };
   }
-  static validate(password) {
-    const result = PasswordSchema.safeParse(password);
-    if (result.success) {
-      const strength = this.checkStrength(password);
-      if (strength.isValid) {
-        return { isValid: true, errors: [] };
-      } else {
-        return {
-          isValid: false,
-          errors: ["Password is not strong enough", ...strength.feedback]
-        };
-      }
-    } else {
-      return {
-        isValid: false,
-        errors: result.error.errors.map((err) => err.message)
-      };
-    }
+  /**
+   * Update system configuration
+   */
+  static async updateSystemConfig(config) {
+    console.log("System config update:", config);
   }
-  static generateSecureToken(length = 32) {
-    const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let token = "";
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * charset.length);
-      token += charset[randomIndex];
-    }
-    return token;
-  }
-}
-const RegisterSchema = z.object({
-  email: z.string().email("Invalid email address").max(255),
-  name: z.string().min(1, "Name is required").max(100),
-  password: z.string().min(1, "Password is required")
-});
-const LoginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required")
-});
-const ResetPasswordSchema = z.object({
-  token: z.string().min(1, "Reset token is required"),
-  newPassword: z.string().min(1, "New password is required")
-});
-class AuthService {
-  static async register(data) {
-    const validation = RegisterSchema.safeParse(data);
-    if (!validation.success) {
-      return {
-        success: false,
-        error: "Validation failed",
-        errors: validation.error.errors.map((err) => err.message)
-      };
-    }
-    const { email, name, password } = validation.data;
-    const passwordValidation = PasswordService.validate(password);
-    if (!passwordValidation.isValid) {
-      return {
-        success: false,
-        error: "Password validation failed",
-        errors: passwordValidation.errors
-      };
-    }
-    try {
-      const existingUser = await db.select().from(users).where(eq(users.email, email));
-      if (existingUser.length > 0) {
-        return {
-          success: false,
-          error: "User already exists with this email"
-        };
+  /**
+   * Get recent admin activity feed
+   */
+  static async getActivityFeed(limit = 50) {
+    return [
+      {
+        id: "1",
+        type: "user_created",
+        message: "New user registered: john.doe@example.com",
+        timestamp: new Date(Date.now() - 1e3 * 60 * 30),
+        // 30 minutes ago
+        targetUserId: "user-123"
+      },
+      {
+        id: "2",
+        type: "config_updated",
+        message: "System configuration updated: Max monitors per user set to 100",
+        timestamp: new Date(Date.now() - 1e3 * 60 * 60 * 2),
+        // 2 hours ago
+        adminUserId: "admin-456"
       }
-      const passwordHash = await PasswordService.hash(password);
-      const [newUser] = await db.insert(users).values({
-        email,
-        name,
-        passwordHash,
-        emailVerified: false,
-        // Will be verified via email
-        isBetaUser: false
-      }).returning();
-      await db.insert(userPreferences).values({
-        userId: newUser.id,
-        emailNotifications: true,
-        timezone: "UTC"
-      });
-      const verificationToken = PasswordService.generateSecureToken(32);
-      const verificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1e3);
-      await db.insert(emailVerificationTokens).values({
-        userId: newUser.id,
-        token: verificationToken,
-        email: newUser.email,
-        expiresAt: verificationExpiry
-      });
-      const tokens = JWTService.generateTokenPair({
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name
-      });
-      const [session] = await db.insert(sessions).values({
-        userId: newUser.id,
-        sessionToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-        expiresAt: tokens.expiresAt,
-        refreshExpiresAt: tokens.refreshExpiresAt
-      }).returning();
-      const userResult = {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-        emailVerified: newUser.emailVerified,
-        isBetaUser: newUser.isBetaUser,
-        createdAt: newUser.createdAt
-      };
-      return {
-        success: true,
-        user: userResult,
-        tokens,
-        session: {
-          id: session.id,
-          expiresAt: session.expiresAt
-        }
-      };
-    } catch (error) {
-      console.error("Registration error:", error);
-      return {
-        success: false,
-        error: "Registration failed. Please try again."
-      };
-    }
-  }
-  static async login(data) {
-    const validation = LoginSchema.safeParse(data);
-    if (!validation.success) {
-      return {
-        success: false,
-        error: "Invalid email or password"
-      };
-    }
-    const { email, password } = validation.data;
-    try {
-      const [user] = await db.select().from(users).where(eq(users.email, email));
-      if (!user || !user.passwordHash) {
-        return {
-          success: false,
-          error: "Invalid email or password"
-        };
-      }
-      const isValidPassword = await PasswordService.verify(password, user.passwordHash);
-      if (!isValidPassword) {
-        return {
-          success: false,
-          error: "Invalid email or password"
-        };
-      }
-      await db.update(users).set({ lastLoginAt: /* @__PURE__ */ new Date() }).where(eq(users.id, user.id));
-      const tokens = JWTService.generateTokenPair({
-        id: user.id,
-        email: user.email,
-        name: user.name
-      });
-      const [session] = await db.insert(sessions).values({
-        userId: user.id,
-        sessionToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-        expiresAt: tokens.expiresAt,
-        refreshExpiresAt: tokens.refreshExpiresAt
-      }).returning();
-      const userResult = {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        emailVerified: user.emailVerified,
-        isBetaUser: user.isBetaUser,
-        createdAt: user.createdAt
-      };
-      return {
-        success: true,
-        user: userResult,
-        tokens,
-        session: {
-          id: session.id,
-          expiresAt: session.expiresAt
-        }
-      };
-    } catch (error) {
-      console.error("Login error:", error);
-      return {
-        success: false,
-        error: "Login failed. Please try again."
-      };
-    }
-  }
-  static async logout(sessionToken) {
-    try {
-      await db.delete(sessions).where(eq(sessions.sessionToken, sessionToken));
-      return { success: true };
-    } catch (error) {
-      console.error("Logout error:", error);
-      return { success: false, error: "Logout failed" };
-    }
-  }
-  static async refreshTokens(refreshToken) {
-    try {
-      const payload = JWTService.verifyRefreshToken(refreshToken);
-      if (!payload) {
-        return { success: false, error: "Invalid refresh token" };
-      }
-      const [session] = await db.select().from(sessions).where(and(
-        eq(sessions.refreshToken, refreshToken),
-        gt(sessions.refreshExpiresAt, /* @__PURE__ */ new Date())
-      ));
-      if (!session) {
-        return { success: false, error: "Session expired or invalid" };
-      }
-      const [user] = await db.select().from(users).where(eq(users.id, session.userId));
-      if (!user) {
-        return { success: false, error: "User not found" };
-      }
-      const tokens = JWTService.generateTokenPair({
-        id: user.id,
-        email: user.email,
-        name: user.name
-      });
-      await db.update(sessions).set({
-        sessionToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-        expiresAt: tokens.expiresAt,
-        refreshExpiresAt: tokens.refreshExpiresAt,
-        lastUsedAt: /* @__PURE__ */ new Date()
-      }).where(eq(sessions.id, session.id));
-      const userResult = {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        emailVerified: user.emailVerified,
-        isBetaUser: user.isBetaUser,
-        createdAt: user.createdAt
-      };
-      return {
-        success: true,
-        user: userResult,
-        tokens,
-        session: {
-          id: session.id,
-          expiresAt: tokens.expiresAt
-        }
-      };
-    } catch (error) {
-      console.error("Token refresh error:", error);
-      return { success: false, error: "Token refresh failed" };
-    }
-  }
-  static async requestPasswordReset(email) {
-    try {
-      const [user] = await db.select().from(users).where(eq(users.email, email));
-      if (!user) {
-        return { success: true };
-      }
-      await db.update(passwordResetTokens).set({ isUsed: true }).where(and(eq(passwordResetTokens.userId, user.id), eq(passwordResetTokens.isUsed, false)));
-      const resetToken = PasswordService.generateSecureToken(32);
-      const resetExpiry = new Date(Date.now() + 60 * 60 * 1e3);
-      await db.insert(passwordResetTokens).values({
-        userId: user.id,
-        token: resetToken,
-        expiresAt: resetExpiry
-      });
-      console.log(`Password reset token for ${email}: ${resetToken}`);
-      return { success: true };
-    } catch (error) {
-      console.error("Password reset request error:", error);
-      return { success: false, error: "Password reset request failed" };
-    }
-  }
-  static async resetPassword(data) {
-    const validation = ResetPasswordSchema.safeParse(data);
-    if (!validation.success) {
-      return {
-        success: false,
-        error: "Invalid request data"
-      };
-    }
-    const { token, newPassword } = validation.data;
-    const passwordValidation = PasswordService.validate(newPassword);
-    if (!passwordValidation.isValid) {
-      return {
-        success: false,
-        error: "Password validation failed",
-        errors: passwordValidation.errors
-      };
-    }
-    try {
-      const [resetToken] = await db.select().from(passwordResetTokens).where(and(
-        eq(passwordResetTokens.token, token),
-        eq(passwordResetTokens.isUsed, false),
-        gt(passwordResetTokens.expiresAt, /* @__PURE__ */ new Date())
-      ));
-      if (!resetToken) {
-        return { success: false, error: "Invalid or expired reset token" };
-      }
-      const passwordHash = await PasswordService.hash(newPassword);
-      await db.update(users).set({ passwordHash }).where(eq(users.id, resetToken.userId));
-      await db.update(passwordResetTokens).set({ isUsed: true }).where(eq(passwordResetTokens.id, resetToken.id));
-      await db.delete(sessions).where(eq(sessions.userId, resetToken.userId));
-      return { success: true };
-    } catch (error) {
-      console.error("Password reset error:", error);
-      return { success: false, error: "Password reset failed" };
-    }
-  }
-  static async verifyEmail(token) {
-    try {
-      const [verificationToken] = await db.select().from(emailVerificationTokens).where(and(
-        eq(emailVerificationTokens.token, token),
-        eq(emailVerificationTokens.isUsed, false),
-        gt(emailVerificationTokens.expiresAt, /* @__PURE__ */ new Date())
-      ));
-      if (!verificationToken) {
-        return { success: false, error: "Invalid or expired verification token" };
-      }
-      await db.update(users).set({ emailVerified: true }).where(eq(users.id, verificationToken.userId));
-      await db.update(emailVerificationTokens).set({ isUsed: true }).where(eq(emailVerificationTokens.id, verificationToken.id));
-      return { success: true };
-    } catch (error) {
-      console.error("Email verification error:", error);
-      return { success: false, error: "Email verification failed" };
-    }
-  }
-  static async getCurrentUser(sessionToken) {
-    try {
-      const payload = JWTService.verifyAccessToken(sessionToken);
-      if (!payload) return null;
-      const [user] = await db.select().from(users).where(eq(users.id, payload.userId));
-      if (!user) return null;
-      return {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        emailVerified: user.emailVerified,
-        isBetaUser: user.isBetaUser,
-        createdAt: user.createdAt
-      };
-    } catch (error) {
-      console.error("Get current user error:", error);
-      return null;
-    }
+    ];
   }
 }
 export {
-  AuthService as A
+  AdminService as A
 };

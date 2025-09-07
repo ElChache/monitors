@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { d as db } from "../../../../chunks/db.js";
+import { db } from "../../../../chunks/db.js";
 const GET = async () => {
   let databaseConnected = false;
   try {

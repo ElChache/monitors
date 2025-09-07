@@ -1,0 +1,80 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - navigation "Breadcrumb" [ref=e5]:
+      - list [ref=e6]:
+        - listitem [ref=e7]:
+          - link "Home Dashboard" [ref=e8]:
+            - /url: /
+            - generic [ref=e9]: Home
+            - text: Dashboard
+        - listitem [ref=e10]:
+          - generic [ref=e11]:
+            - generic [ref=e12]: /
+            - generic [ref=e13]: Settings
+    - heading "Account Settings" [level=1] [ref=e14]
+    - paragraph [ref=e15]: Manage your account preferences and notifications
+  - generic [ref=e17]:
+    - generic [ref=e18]:
+      - heading "Profile Information" [level=3] [ref=e19]
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Full Name
+          - textbox "Full Name" [active] [ref=e23]
+        - generic [ref=e24]:
+          - generic [ref=e25]: Email Address
+          - textbox "Email Address" [disabled] [ref=e26]
+          - paragraph [ref=e27]: Email cannot be changed
+    - generic [ref=e28]:
+      - heading "Notification Preferences" [level=3] [ref=e29]
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - generic [ref=e33]: Email Notifications
+            - paragraph [ref=e34]: Receive monitor alerts via email
+          - checkbox "Email Notifications" [checked] [ref=e35]
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - generic [ref=e38]: Push Notifications
+            - paragraph [ref=e39]: Receive browser push notifications
+          - checkbox "Push Notifications" [ref=e40]
+        - generic [ref=e41]:
+          - generic [ref=e42]: Notification Frequency
+          - combobox "Notification Frequency" [ref=e43]:
+            - option "Immediate" [selected]
+            - option "Hourly Digest"
+            - option "Daily Digest"
+            - option "Weekly Summary"
+    - generic [ref=e44]:
+      - heading "Preferences" [level=3] [ref=e45]
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - generic [ref=e48]: Timezone
+          - combobox "Timezone" [ref=e49]:
+            - option "UTC" [selected]
+            - option "Eastern Time"
+            - option "Central Time"
+            - option "Mountain Time"
+            - option "Pacific Time"
+            - option "London"
+            - option "Paris"
+            - option "Tokyo"
+        - generic [ref=e50]:
+          - generic [ref=e51]: Theme
+          - combobox "Theme" [ref=e52]:
+            - option "Light" [selected]
+            - option "Dark"
+            - option "Auto"
+    - generic [ref=e53]:
+      - link "Cancel" [ref=e54]:
+        - /url: /
+      - button "Save Changes" [ref=e55]
+  - generic [ref=e57]:
+    - heading "Danger Zone" [level=3] [ref=e58]
+    - paragraph [ref=e59]: These actions cannot be undone
+    - generic [ref=e60]:
+      - button "Delete All Monitors" [ref=e61]
+      - button "Delete Account" [ref=e62]
+```

@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { A as AuthService } from "../../../../../chunks/service.js";
+import { A as AuthService } from "../../../../../chunks/service2.js";
 import { r as rateLimit } from "../../../../../chunks/rateLimit.js";
 import { z } from "zod";
 const ForgotPasswordSchema = z.object({

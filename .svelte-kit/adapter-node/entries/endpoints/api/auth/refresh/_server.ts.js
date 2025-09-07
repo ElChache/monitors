@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { A as AuthService } from "../../../../../chunks/service.js";
+import { A as AuthService } from "../../../../../chunks/service2.js";
 const POST = async ({ cookies }) => {
   try {
     const refreshToken = cookies.get("refresh_token");

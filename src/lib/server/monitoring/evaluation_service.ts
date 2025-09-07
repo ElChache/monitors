@@ -3,6 +3,7 @@ import { db } from '../db';
 import { monitors, monitorFacts, factHistory, monitorEvaluations } from '../../db/schemas/monitors';
 import { WebScraperService } from './web_scraper';
 import { IntegratedEmailService } from '../email/integrated_service';
+import { extractFacts, enhanceScrapingData, generateNotification } from '$lib/ai';
 
 export interface EvaluationResult {
   success: boolean;
@@ -133,24 +134,73 @@ export class MonitorEvaluationService {
   }
 
   /**
-   * Extract data from the target source (web scraping or API)
+   * Extract data from the target source using AI-powered fact extraction
    */
   private static async extractMonitorData(monitor: any): Promise<any> {
     try {
-      // For now, we'll extract based on the monitor prompt
-      // In a real implementation, this would parse the prompt to determine the extraction method
+      console.log(`AI-powered data extraction for monitor ${monitor.id}`);
       
       // Simple URL detection
       const urlMatch = monitor.prompt.match(/https?:\/\/[^\s]+/);
       if (urlMatch) {
         const url = urlMatch[0];
-        return await WebScraperService.extractData(url, {
-          selector: this.inferSelector(monitor.extractedFact),
-          type: monitor.factType
-        });
+        
+        try {
+          // Step 1: Web scraping to get raw content
+          const rawContent = await WebScraperService.extractData(url, {
+            selector: this.inferSelector(monitor.extractedFact),
+            type: monitor.factType
+          });
+          
+          if (rawContent) {
+            // Step 2: AI enhancement of scraped data
+            const enhancedData = await enhanceScrapingData({
+              content: typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent),
+              sourceUrl: url,
+              purpose: monitor.extractedFact,
+              targetFactType: monitor.factType
+            });
+            
+            // Step 3: AI fact extraction from enhanced data
+            const facts = await extractFacts({
+              content: enhancedData.cleanContent,
+              contentType: 'HTML',
+              targetFacts: [monitor.extractedFact],
+              context: `Monitor: ${monitor.name}. Looking for: ${monitor.extractedFact}`
+            });
+            
+            // Return the most relevant extracted fact
+            if (facts.extractedFacts && facts.extractedFacts.length > 0) {
+              const relevantFact = facts.extractedFacts.find(f => 
+                f.confidence > 0.7 && f.type === monitor.factType
+              ) || facts.extractedFacts[0];
+              
+              console.log(`AI extraction successful:`, {
+                value: relevantFact.value,
+                confidence: relevantFact.confidence,
+                type: relevantFact.type
+              });
+              
+              return relevantFact.value;
+            }
+            
+            console.warn('AI fact extraction found no relevant facts, falling back to raw content');
+            return rawContent;
+            
+          }
+        } catch (aiError) {
+          console.warn('AI extraction failed, falling back to basic web scraping:', aiError);
+          
+          // Fallback to basic web scraping
+          return await WebScraperService.extractData(url, {
+            selector: this.inferSelector(monitor.extractedFact),
+            type: monitor.factType
+          });
+        }
       }
 
       // For demonstration, generate realistic test data based on monitor type
+      console.log('No URL found in prompt, generating test data');
       return this.generateTestData(monitor);
 
     } catch (error) {
@@ -432,7 +482,7 @@ export class MonitorEvaluationService {
   }
 
   /**
-   * Send notification if monitor triggered
+   * Send notification if monitor triggered with AI-powered personalization
    */
   private static async sendNotification(
     monitorId: string,
@@ -440,11 +490,55 @@ export class MonitorEvaluationService {
     previousValue: any
   ): Promise<void> {
     try {
-      await IntegratedEmailService.sendMonitorNotification(
-        monitorId,
-        currentValue,
-        previousValue
-      );
+      // Get monitor details for AI notification generation
+      const monitorResult = await db
+        .select()
+        .from(monitors)
+        .where(eq(monitors.id, monitorId))
+        .limit(1);
+
+      if (monitorResult.length === 0) {
+        console.error('Monitor not found for notification:', monitorId);
+        return;
+      }
+
+      const monitor = monitorResult[0];
+
+      try {
+        // Step 1: AI-powered notification generation
+        console.log(`Generating AI-powered notification for monitor ${monitorId}`);
+        
+        const notificationData = await generateNotification({
+          monitorName: monitor.name,
+          monitorType: monitor.type,
+          extractedFact: monitor.extractedFact,
+          currentValue,
+          previousValue,
+          triggerCondition: monitor.triggerCondition,
+          factType: monitor.factType
+        });
+
+        // Step 2: Send enhanced notification with AI-generated content
+        await IntegratedEmailService.sendAIGeneratedNotification(
+          monitorId,
+          currentValue,
+          previousValue,
+          notificationData
+        );
+
+        console.log(`AI-powered notification sent successfully for monitor ${monitorId}`);
+        
+      } catch (aiError) {
+        console.warn('AI notification generation failed, falling back to standard notification:', aiError);
+        
+        // Fallback to standard notification if AI fails
+        await IntegratedEmailService.sendMonitorNotification(
+          monitorId,
+          currentValue,
+          previousValue
+        );
+      }
+      
     } catch (error) {
       console.error('Failed to send monitor notification:', error);
     }

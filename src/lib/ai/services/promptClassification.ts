@@ -467,8 +467,14 @@ Return JSON:
   }
 }
 
-// Export singleton instance
-export const promptClassificationService = new PromptClassificationService();
+// Export lazy initialization function
+let _promptClassificationServiceInstance: PromptClassificationService | null = null;
+export const getPromptClassificationService = (): PromptClassificationService => {
+  if (!_promptClassificationServiceInstance) {
+    _promptClassificationServiceInstance = new PromptClassificationService();
+  }
+  return _promptClassificationServiceInstance;
+};
 
 /**
  * Convenience function for quick prompt classification
@@ -481,7 +487,7 @@ export async function classifyPrompt(
     includeImprovements?: boolean;
   }
 ): Promise<PromptClassificationResult> {
-  return promptClassificationService.classifyPrompt(prompt, options);
+  return getPromptClassificationService().classifyPrompt(prompt, options);
 }
 
 /**

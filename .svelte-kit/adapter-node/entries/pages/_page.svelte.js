@@ -1,5 +1,4 @@
-import { G as push, T as head, O as push_element, Q as pop_element, K as pop, F as FILENAME } from "../../chunks/index.js";
-import { e as escape_html } from "../../chunks/escaping.js";
+import { p as push, h as head, c as push_element, d as pop_element, e as escape_html, a as pop, F as FILENAME } from "../../chunks/index3.js";
 _page[FILENAME] = "src/routes/+page.svelte";
 function _page($$payload, $$props) {
   push(_page);
@@ -7,9 +6,9 @@ function _page($$payload, $$props) {
   head($$payload, ($$payload2) => {
     $$payload2.title = `<title>Monitors - AI-Powered Monitoring Platform</title>`;
   });
-  $$payload.out.push(`<main class="svelte-wkqzup">`);
+  $$payload.out.push(`<main class="svelte-1iflf9t">`);
   push_element($$payload, "main", 21, 0);
-  $$payload.out.push(`<h1 class="svelte-wkqzup">`);
+  $$payload.out.push(`<h1 class="svelte-1iflf9t">`);
   push_element($$payload, "h1", 22, 1);
   $$payload.out.push(`Welcome to Monitors</h1>`);
   pop_element();
@@ -17,9 +16,9 @@ function _page($$payload, $$props) {
   push_element($$payload, "p", 23, 1);
   $$payload.out.push(`AI-Powered Monitoring Platform - Hello World!</p>`);
   pop_element();
-  $$payload.out.push(` <div class="status svelte-wkqzup">`);
+  $$payload.out.push(` <div class="status svelte-1iflf9t">`);
   push_element($$payload, "div", 25, 1);
-  $$payload.out.push(`<h2 class="svelte-wkqzup">`);
+  $$payload.out.push(`<h2 class="svelte-1iflf9t">`);
   push_element($$payload, "h2", 26, 2);
   $$payload.out.push(`System Status</h2>`);
   pop_element();
