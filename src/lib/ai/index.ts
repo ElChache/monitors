@@ -46,6 +46,21 @@ export {
   initializeAIManager
 } from './manager.js';
 
+// AI Services
+export {
+  NotificationGenerationService,
+  generateNotification,
+  determineUrgency,
+  getActionRecommendations,
+  UrgencyLevel,
+  NotificationType,
+  ToneStyle,
+  type MonitorData,
+  type UserContext,
+  type NotificationContext,
+  type GeneratedNotification
+} from './services/notificationGeneration.js';
+
 // Convenience functions for common use cases
 
 /**
