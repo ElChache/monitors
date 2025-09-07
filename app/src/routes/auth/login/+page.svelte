@@ -1,21 +1,63 @@
 <script lang="ts">
+  import { validateEmail } from '$lib/utils/validation';
+  
   let email = '';
   let password = '';
   let loading = false;
   let error = '';
+  let fieldErrors: Record<string, string> = {};
 
   const handleSubmit = async () => {
     loading = true;
     error = '';
+    fieldErrors = {};
+    
+    // Client-side validation
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      fieldErrors.email = emailValidation.error!;
+    }
+    
+    if (!password.trim()) {
+      fieldErrors.password = 'Password is required';
+    }
+    
+    // If validation fails, stop here
+    if (Object.keys(fieldErrors).length > 0) {
+      loading = false;
+      return;
+    }
     
     // TODO: Integrate with backend authentication API
     console.log('Login attempt:', { email, password: '***' });
     
-    // Simulated login for now
+    // Simulated login for now - simulate different outcomes
     setTimeout(() => {
       loading = false;
+      
+      // Simulate different response scenarios
+      const scenario = Math.random();
+      if (scenario < 0.7) {
+        // Success - redirect to dashboard
+        console.log('Login successful');
+        // Will redirect in real implementation
+      } else if (scenario < 0.9) {
+        // Invalid credentials
+        error = 'Invalid email or password. Please try again.';
+      } else {
+        // Server error
+        error = 'Something went wrong. Please try again later.';
+      }
+      
       // Will integrate with actual auth in Iteration 1
-    }, 1000);
+    }, 1500);
+  };
+
+  const clearFieldError = (field: string) => {
+    if (fieldErrors[field]) {
+      delete fieldErrors[field];
+      fieldErrors = fieldErrors; // Trigger reactivity
+    }
   };
 </script>
 
@@ -43,9 +85,13 @@
           type="email"
           required
           bind:value={email}
-          class="form-input"
+          on:input={() => clearFieldError('email')}
+          class="form-input {fieldErrors.email ? 'border-accent-300 focus:border-accent-500 focus:ring-accent-500' : ''}"
           placeholder="Enter your email"
         />
+        {#if fieldErrors.email}
+          <p class="mt-1 text-sm text-accent-600">{fieldErrors.email}</p>
+        {/if}
       </div>
 
       <div>
@@ -56,9 +102,13 @@
           type="password"
           required
           bind:value={password}
-          class="form-input"
+          on:input={() => clearFieldError('password')}
+          class="form-input {fieldErrors.password ? 'border-accent-300 focus:border-accent-500 focus:ring-accent-500' : ''}"
           placeholder="Enter your password"
         />
+        {#if fieldErrors.password}
+          <p class="mt-1 text-sm text-accent-600">{fieldErrors.password}</p>
+        {/if}
       </div>
 
       <div class="flex items-center justify-between">
