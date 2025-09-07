@@ -14,41 +14,143 @@
 @layer components {
   /* Monitor Card Component */
   .monitor-card {
-    @apply bg-white rounded-monitors shadow-monitors hover:shadow-monitors-hover transition-shadow duration-200 p-6 border border-gray-200;
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    transition-property: box-shadow;
+    transition-duration: 200ms;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .monitor-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
   
   /* Button Components */
   .btn-primary {
-    @apply bg-primary text-white px-4 py-2 rounded-monitors font-medium hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors duration-200;
+    background-color: #3498db;
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    transition-property: background-color;
+    transition-duration: 200ms;
+  }
+  
+  .btn-primary:hover {
+    background-color: #1e7bbf;
+  }
+  
+  .btn-primary:focus {
+    box-shadow: 0 0 0 2px #3498db;
+    outline: none;
   }
   
   .btn-secondary {
-    @apply bg-secondary text-white px-4 py-2 rounded-monitors font-medium hover:bg-secondary-600 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 transition-colors duration-200;
+    background-color: #2ecc71;
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    transition-property: background-color;
+    transition-duration: 200ms;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #27ae60;
+  }
+  
+  .btn-secondary:focus {
+    box-shadow: 0 0 0 2px #2ecc71;
+    outline: none;
   }
   
   .btn-outline {
-    @apply border-2 border-primary text-primary px-4 py-2 rounded-monitors font-medium hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200;
+    border: 2px solid #3498db;
+    color: #3498db;
+    background-color: transparent;
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    transition-property: all;
+    transition-duration: 200ms;
+  }
+  
+  .btn-outline:hover {
+    background-color: #3498db;
+    color: #ffffff;
+  }
+  
+  .btn-outline:focus {
+    box-shadow: 0 0 0 2px #3498db;
+    outline: none;
   }
   
   /* Form Components */
   .form-input {
-    @apply block w-full rounded-monitors border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm;
+    display: block;
+    width: 100%;
+    border-radius: 16px;
+    border: 1px solid #d1d5db;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .form-input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    outline: none;
   }
   
   .form-label {
-    @apply block text-sm font-medium text-gray-700 mb-2;
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
   }
   
   /* Status Indicators */
   .status-active {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary-100 text-secondary-800;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: #d1f2dd;
+    color: #1e7b33;
   }
   
   .status-inactive {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: #f3f4f6;
+    color: #1f2937;
   }
   
   .status-error {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent-100 text-accent-800;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: #fef2f2;
+    color: #b91c1c;
   }
 }
