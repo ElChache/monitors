@@ -46,6 +46,21 @@ export {
   initializeAIManager
 } from './manager.js';
 
+// AI Services
+export {
+  PromptClassificationService,
+  classifyPrompt,
+  isValidMonitorPrompt,
+  MonitorType,
+  EntityType,
+  ConditionType,
+  MonitoringFrequency,
+  type ExtractedEntity,
+  type ExtractedCondition,
+  type FrequencyRecommendation,
+  type PromptClassificationResult
+} from './services/promptClassification.js';
+
 // Convenience functions for common use cases
 
 /**
