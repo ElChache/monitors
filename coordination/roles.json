@@ -1,10 +1,10 @@
 {
-  "product_owner": "pm_claude_001_k3x7",
-  "system_architect": "sa_primary_001_m4k9",
-  "ux_expert": "ux_claude_001_v7x2",
+  "product_owner": null,
+  "system_architect": null,
+  "ux_expert": null,
   "graphic_designer": null,
-  "lead_developer": "ld_primary_001_q9z3",
-  "backend_developers": ["be_primary_001_x7m9"],
+  "lead_developer": null,
+  "backend_developers": [],
   "frontend_developers": [],
   "ai_developers": [],
   "technical_qa": null
