@@ -127,7 +127,7 @@ describe('MonitorCard Component', () => {
 
     it('should render monitor without description in compact mode', () => {
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           compact: true
         }
@@ -206,6 +206,7 @@ describe('MonitorCard Component', () => {
     });
 
     it('should show never evaluated status for monitor without evaluations', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { lastEvaluation, ...monitorWithoutEval } = mockCurrentStateMonitor;
 
       render(MonitorCard, {
@@ -241,7 +242,7 @@ describe('MonitorCard Component', () => {
 
     it('should apply compact class when compact prop is true', () => {
       const { container } = render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           compact: true
         }
@@ -274,7 +275,7 @@ describe('MonitorCard Component', () => {
   describe('Action Button Tests', () => {
     it('should render edit button when onEdit handler provided', () => {
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           onEdit: mockHandlers.onEdit
         }
@@ -286,7 +287,7 @@ describe('MonitorCard Component', () => {
 
     it('should call onEdit handler when edit button clicked', async () => {
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           onEdit: mockHandlers.onEdit
         }
@@ -301,7 +302,7 @@ describe('MonitorCard Component', () => {
 
     it('should render delete button when onDelete handler provided', () => {
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           onDelete: mockHandlers.onDelete
         }
@@ -316,7 +317,7 @@ describe('MonitorCard Component', () => {
       vi.mocked(global.confirm).mockReturnValue(true);
 
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           onDelete: mockHandlers.onDelete
         }
@@ -334,7 +335,7 @@ describe('MonitorCard Component', () => {
       vi.mocked(global.confirm).mockReturnValue(false);
 
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           onDelete: mockHandlers.onDelete
         }
@@ -349,7 +350,7 @@ describe('MonitorCard Component', () => {
 
     it('should render toggle active button with correct icon for active monitor', () => {
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           onToggleActive: mockHandlers.onToggleActive
         }
@@ -361,7 +362,7 @@ describe('MonitorCard Component', () => {
 
     it('should render toggle active button with correct icon for inactive monitor', () => {
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockInactiveMonitor,
           onToggleActive: mockHandlers.onToggleActive
         }
@@ -373,7 +374,7 @@ describe('MonitorCard Component', () => {
 
     it('should call onToggleActive handler when toggle button clicked', async () => {
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           onToggleActive: mockHandlers.onToggleActive
         }
@@ -388,7 +389,7 @@ describe('MonitorCard Component', () => {
 
     it('should render evaluate now button when handler provided', () => {
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           onEvaluateNow: mockHandlers.onEvaluateNow
         }
@@ -400,7 +401,7 @@ describe('MonitorCard Component', () => {
 
     it('should disable evaluate now button for inactive monitor', () => {
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockInactiveMonitor,
           onEvaluateNow: mockHandlers.onEvaluateNow
         }
@@ -412,7 +413,7 @@ describe('MonitorCard Component', () => {
 
     it('should call onEvaluateNow handler when evaluate button clicked', async () => {
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           onEvaluateNow: mockHandlers.onEvaluateNow
         }
@@ -438,6 +439,7 @@ describe('MonitorCard Component', () => {
     });
 
     it('should not show last evaluation date when no evaluation exists', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { lastEvaluation, ...monitorWithoutEval } = mockCurrentStateMonitor;
 
       render(MonitorCard, {
@@ -484,6 +486,7 @@ describe('MonitorCard Component', () => {
     });
 
     it('should handle monitor with undefined facts', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { facts, ...monitorWithUndefinedFacts } = mockCurrentStateMonitor;
 
       const { container } = render(MonitorCard, {
@@ -498,7 +501,7 @@ describe('MonitorCard Component', () => {
   describe('Accessibility Tests', () => {
     it('should have proper ARIA labels and titles for buttons', () => {
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           ...mockHandlers
         }
@@ -521,7 +524,7 @@ describe('MonitorCard Component', () => {
 
     it('should render buttons as actual button elements', () => {
       render(MonitorCard, {
-        props: { 
+        props: {
           monitor: mockCurrentStateMonitor,
           onEdit: mockHandlers.onEdit
         }

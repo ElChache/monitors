@@ -10,11 +10,14 @@ export interface CombinationEvaluation {
   result: boolean;
   confidence: number;
   reasoning: string;
-  factResults: Record<string, {
-    value: unknown;
-    evaluated: boolean;
-    contribution: number;
-  }>;
+  factResults: Record<
+    string,
+    {
+      value: unknown;
+      evaluated: boolean;
+      contribution: number;
+    }
+  >;
   logicExpression: string;
   evaluationTime: number;
 }
@@ -35,19 +38,16 @@ export class EvaluationService {
   /**
    * Evaluates current state monitors using Combination Intelligence
    */
-  async evaluateCurrentState(
-    facts: Record<string, unknown>,
-    logicExpression: string
-  ): Promise<CombinationEvaluation> {
+  async evaluateCurrentState(facts: Record<string, unknown>, logicExpression: string): Promise<CombinationEvaluation> {
     const startTime = Date.now();
-    
+
     try {
       // Use AI to evaluate the combination logic
       const aiResult = await aiService.evaluateState(facts, logicExpression);
-      
+
       // Process individual fact contributions
       const factResults = this.analyzeFacts(facts, logicExpression, aiResult);
-      
+
       return {
         result: aiResult.result,
         confidence: aiResult.confidence,
@@ -70,14 +70,14 @@ export class EvaluationService {
     changeCondition: string
   ): Promise<TemporalEvaluation> {
     const startTime = Date.now();
-    
+
     try {
       // Use AI to evaluate temporal change
       const aiResult = await aiService.evaluateChange(currentValues, previousValues, changeCondition);
-      
+
       // Determine change type based on the data
       const changeType = this.determineChangeType(currentValues, previousValues, aiResult);
-      
+
       return {
         hasChanged: aiResult.hasChanged,
         changeType,
@@ -90,7 +90,9 @@ export class EvaluationService {
         evaluationTime: Date.now() - startTime
       };
     } catch (error) {
-      throw new Error(`Historical change evaluation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Historical change evaluation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -112,22 +114,18 @@ export class EvaluationService {
     try {
       // Evaluate current state
       const stateEvaluation = await this.evaluateCurrentState(currentFacts, stateLogic);
-      
+
       // Evaluate change if condition provided
       let changeEvaluation: TemporalEvaluation | null = null;
       if (changeCondition && previousFacts) {
-        changeEvaluation = await this.evaluateHistoricalChange(
-          currentFacts, 
-          previousFacts, 
-          changeCondition
-        );
+        changeEvaluation = await this.evaluateHistoricalChange(currentFacts, previousFacts, changeCondition);
       }
-      
+
       // Combine results
       const combinedResult = this.combineEvaluations(stateEvaluation, changeEvaluation);
       const confidence = this.calculateCombinedConfidence(stateEvaluation, changeEvaluation);
       const reasoning = this.generateCombinedReasoning(stateEvaluation, changeEvaluation);
-      
+
       return {
         stateEvaluation,
         changeEvaluation,
@@ -143,21 +141,24 @@ export class EvaluationService {
   /**
    * Validates logic expressions for syntax and feasibility
    */
-  validateLogicExpression(expression: string, availableFacts: string[]): {
+  validateLogicExpression(
+    expression: string,
+    availableFacts: string[]
+  ): {
     isValid: boolean;
     issues: string[];
     suggestions: string[];
   } {
     const issues: string[] = [];
     const suggestions: string[] = [];
-    
+
     // Check for basic syntax
     if (!expression.trim()) {
       issues.push('Logic expression cannot be empty');
       suggestions.push('Provide a Boolean logic expression like "fact1 AND fact2"');
       return { isValid: false, issues, suggestions };
     }
-    
+
     // Check for balanced parentheses
     const openParens = (expression.match(/\(/g) || []).length;
     const closeParens = (expression.match(/\)/g) || []).length;
@@ -165,14 +166,12 @@ export class EvaluationService {
       issues.push('Unbalanced parentheses in logic expression');
       suggestions.push('Ensure all opening parentheses have matching closing parentheses');
     }
-    
-    // Check for valid operators
-    const validOperators = ['AND', 'OR', 'NOT', '&&', '||', '!'];
-    const operators = expression.match(/\b(AND|OR|NOT|&&|\|\||!)\b/gi) || [];
-    
+
+    // Validation logic removed - not currently used
+
     // Extract referenced facts
     const referencedFacts = this.extractReferencedFacts(expression);
-    
+
     // Check if all referenced facts are available
     for (const fact of referencedFacts) {
       if (!availableFacts.includes(fact)) {
@@ -180,13 +179,13 @@ export class EvaluationService {
         suggestions.push(`Available facts: ${availableFacts.join(', ')}`);
       }
     }
-    
+
     // Check for logical structure
     if (referencedFacts.length === 0) {
       issues.push('No facts referenced in logic expression');
       suggestions.push('Reference at least one fact in your logic expression');
     }
-    
+
     return {
       isValid: issues.length === 0,
       issues,
@@ -200,7 +199,7 @@ export class EvaluationService {
     aiResult: EvaluationResult
   ): Record<string, { value: unknown; evaluated: boolean; contribution: number }> {
     const factResults: Record<string, { value: unknown; evaluated: boolean; contribution: number }> = {};
-    
+
     for (const [factName, value] of Object.entries(facts)) {
       factResults[factName] = {
         value,
@@ -208,15 +207,11 @@ export class EvaluationService {
         contribution: this.calculateFactContribution(factName, logicExpression, aiResult.result)
       };
     }
-    
+
     return factResults;
   }
 
-  private calculateFactContribution(
-    factName: string,
-    logicExpression: string,
-    overallResult: boolean
-  ): number {
+  private calculateFactContribution(factName: string, logicExpression: string, overallResult: boolean): number {
     // Simplified contribution calculation
     // In production, this would be more sophisticated
     const expressionLower = logicExpression.toLowerCase();
@@ -232,31 +227,32 @@ export class EvaluationService {
     aiResult: ChangeResult
   ): 'increase' | 'decrease' | 'volatility' | 'pattern' | 'none' {
     if (!aiResult.hasChanged) return 'none';
-    
+
     // Analyze numeric changes
     for (const [key, currentValue] of Object.entries(currentValues)) {
       const previousValue = previousValues[key];
-      
+
       if (typeof currentValue === 'number' && typeof previousValue === 'number') {
         const change = currentValue - previousValue;
         const changePercent = Math.abs(change) / Math.abs(previousValue);
-        
-        if (changePercent > 0.1) { // 10% change threshold
+
+        if (changePercent > 0.1) {
+          // 10% change threshold
           return change > 0 ? 'increase' : 'decrease';
         }
       }
     }
-    
+
     // Check for volatility or patterns based on AI reasoning
     const reasoning = aiResult.reasoning.toLowerCase();
     if (reasoning.includes('volatil') || reasoning.includes('fluctuat')) {
       return 'volatility';
     }
-    
+
     if (reasoning.includes('pattern') || reasoning.includes('trend')) {
       return 'pattern';
     }
-    
+
     return 'pattern'; // Default for other types of changes
   }
 
@@ -268,7 +264,7 @@ export class EvaluationService {
     if (!changeEvaluation) {
       return stateEvaluation.result;
     }
-    
+
     // Combine state and change evaluations
     // This logic can be customized based on monitor requirements
     return stateEvaluation.result && changeEvaluation.hasChanged;
@@ -281,7 +277,7 @@ export class EvaluationService {
     if (!changeEvaluation) {
       return stateEvaluation.confidence;
     }
-    
+
     // Average of both confidences, weighted by complexity
     return (stateEvaluation.confidence + changeEvaluation.confidence) / 2;
   }
@@ -291,15 +287,15 @@ export class EvaluationService {
     changeEvaluation: TemporalEvaluation | null
   ): string {
     let reasoning = `State evaluation: ${stateEvaluation.reasoning}`;
-    
+
     if (changeEvaluation) {
       reasoning += `\n\nChange evaluation: ${changeEvaluation.reasoning}`;
-      
+
       if (changeEvaluation.hasChanged) {
         reasoning += `\n\nDetected ${changeEvaluation.changeType} with ${(changeEvaluation.significance * 100).toFixed(1)}% significance.`;
       }
     }
-    
+
     return reasoning;
   }
 
@@ -307,8 +303,8 @@ export class EvaluationService {
     // Simple fact extraction - in production, this would be more sophisticated
     const words = expression.match(/\b[a-zA-Z_][a-zA-Z0-9_]*\b/g) || [];
     const operators = ['AND', 'OR', 'NOT', 'and', 'or', 'not'];
-    
-    return words.filter(word => !operators.includes(word));
+
+    return words.filter((word) => !operators.includes(word));
   }
 }
 
