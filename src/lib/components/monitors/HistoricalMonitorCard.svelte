@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let id: string;
+	export const id: string = '';
 	export let title: string;
 	export let status: 'active' | 'paused' | 'triggered';
 	export let changeData: {
@@ -11,7 +11,7 @@
 	export let onView: () => void;
 	export let onConfig: () => void;
 
-	const getStatusColor = (status: string) => {
+	const getStatusColor = (status: string): string => {
 		switch (status) {
 			case 'active': return 'var(--monitor-active)';
 			case 'triggered': return 'var(--monitor-triggered)';
@@ -20,16 +20,16 @@
 		}
 	};
 
-	const getStatusIcon = (status: string) => {
+	const getStatusIcon = (status: string): string => {
 		return status === 'paused' ? '○' : '●';
 	};
 
-	const getChangeIcon = (direction: string) => {
+	const getChangeIcon = (direction: string): string => {
 		return direction === 'down' ? '▼' : '▲';
 	};
 
 	// Simple SVG path generation for chart preview
-	const generateChartPath = (data: Array<{ x: number; y: number }>) => {
+	const generateChartPath = (data: Array<{ x: number; y: number }>): string => {
 		if (data.length === 0) return '';
 		
 		const maxY = Math.max(...data.map(d => d.y));
@@ -92,7 +92,7 @@
 							vector-effect="non-scaling-stroke"
 						/>
 						<!-- Add some sample dots for visual interest -->
-						{#each chartPreview.slice(-3) as point, index}
+						{#each chartPreview.slice(-3) as _item, index (index)}
 							<circle
 								cx={(index / 2) * 100}
 								cy={50 + (index - 1) * 10}

@@ -101,7 +101,7 @@
 	}
 	
 	// Handle form submission
-	async function handleSubmit() {
+	async function handleSubmit(): Promise<void> {
 		if (!isValid || isSubmitting) return;
 		
 		isSubmitting = true;
@@ -123,14 +123,14 @@
 	}
 	
 	// Handle preview/validation
-	function handlePreview() {
+	function handlePreview(): void {
 		if (prompt.length > 10) {
 			dispatch('preview', { prompt });
 		}
 	}
 	
 	// Use example prompt
-	function useExample(example: string) {
+	function useExample(example: string): void {
 		prompt = example;
 		showAdvanced = false;
 	}
@@ -207,8 +207,9 @@
 
 		<!-- Monitor Type Selection -->
 		<div class="input-section">
-			<label class="input-label">Monitor Type</label>
-			<div class="radio-group">
+			<fieldset class="radio-fieldset">
+				<legend class="input-label">Monitor Type</legend>
+				<div class="radio-group">
 				<label class="radio-option" class:selected={monitorType === 'CURRENT_STATE'}>
 					<input 
 						type="radio" 
@@ -240,18 +241,19 @@
 						</div>
 					</div>
 				</label>
-			</div>
+				</div>
+			</fieldset>
 		</div>
 
 		<!-- Example Prompts -->
 		<div class="examples-section">
 			<h3 class="examples-title">Need inspiration? Try these examples:</h3>
 			<div class="examples-grid">
-				{#each examplePrompts[monitorType] as example}
+				{#each examplePrompts[monitorType] as example, index (index)}
 					<button
 						type="button"
 						class="example-prompt"
-						on:click={() => useExample(example)}
+						on:click={(): void => useExample(example)}
 					>
 						{example}
 					</button>
@@ -264,7 +266,7 @@
 			<button
 				type="button"
 				class="advanced-toggle"
-				on:click={() => showAdvanced = !showAdvanced}
+				on:click={(): void => { showAdvanced = !showAdvanced; }}
 			>
 				<span>Advanced Options</span>
 				<span class="toggle-icon" class:rotated={showAdvanced}>▼</span>
@@ -279,7 +281,7 @@
 							Check Frequency
 						</label>
 						<select bind:value={frequency} class="frequency-select">
-							{#each frequencyOptions as option}
+							{#each frequencyOptions as option (option.value)}
 								<option value={option.value}>
 									{option.label} - {option.description}
 								</option>
@@ -310,22 +312,22 @@
 		</div>
 
 		<!-- Form Actions -->
-		<div class="form-actions">
+		<div class="form-actions flex gap-4 justify-between">
 			<button
 				type="button"
-				class="secondary-btn"
-				on:click={() => history.back()}
+				class="btn btn-secondary"
+				on:click={(): void => { window.history.back(); }}
 			>
 				Cancel
 			</button>
 			
 			<button
 				type="submit"
-				class="primary-btn"
+				class="btn btn-primary"
 				disabled={!isValid || isSubmitting}
 			>
 				{#if isSubmitting}
-					<div class="loading-spinner"></div>
+					<div class="loading-spinner animate-spin"></div>
 					Creating Monitor...
 				{:else}
 					<Play size={16} />
@@ -379,6 +381,15 @@
 	}
 	
 	.input-section {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+	
+	.radio-fieldset {
+		border: none;
+		margin: 0;
+		padding: 0;
 		display: flex;
 		flex-direction: column;
 		gap: 0.75rem;
@@ -623,46 +634,6 @@
 		border-top: 1px solid #e5e7eb;
 	}
 	
-	.secondary-btn,
-	.primary-btn {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		padding: 0.75rem 1.5rem;
-		border-radius: 0.5rem;
-		font-weight: 600;
-		font-size: 0.875rem;
-		cursor: pointer;
-		transition: all 0.2s;
-		border: none;
-	}
-	
-	.secondary-btn {
-		background: #f3f4f6;
-		color: #374151;
-		border: 1px solid #d1d5db;
-	}
-	
-	.secondary-btn:hover {
-		background: #e5e7eb;
-		border-color: #9ca3af;
-	}
-	
-	.primary-btn {
-		background: #3b82f6;
-		color: #fff;
-	}
-	
-	.primary-btn:hover:not(:disabled) {
-		background: #2563eb;
-		transform: translateY(-1px);
-	}
-	
-	.primary-btn:disabled {
-		background: #9ca3af;
-		cursor: not-allowed;
-		transform: none;
-	}
 	
 	.loading-spinner {
 		width: 16px;
@@ -695,11 +666,6 @@
 		
 		.form-actions {
 			flex-direction: column;
-		}
-		
-		.secondary-btn,
-		.primary-btn {
-			justify-content: center;
 		}
 	}
 </style>

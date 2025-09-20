@@ -10,6 +10,14 @@ import { config, isWhitelisted } from '$lib/config';
 import bcrypt from 'bcryptjs';
 import type { Handle } from '@sveltejs/kit';
 
+// Type definitions for auth callbacks
+interface ExtendedUser {
+  id: string;
+  email: string;
+  name?: string | null;
+  isAdmin?: boolean;
+}
+
 export const { handle: authHandle } = SvelteKitAuth({
 	adapter: PrismaAdapter(db),
 	providers: [
@@ -91,14 +99,14 @@ export const { handle: authHandle } = SvelteKitAuth({
 		},
 		async jwt({ token, user }) {
 			if (user) {
-				token.isAdmin = (user as any).isAdmin || false;
+				token.isAdmin = (user as ExtendedUser).isAdmin || false;
 			}
 			return token;
 		},
 		async session({ session, token }) {
 			if (session.user && token.sub) {
 				session.user.id = token.sub;
-				(session.user as any).isAdmin = token.isAdmin || false;
+				(session.user as ExtendedUser).isAdmin = Boolean(token.isAdmin ?? false);
 			}
 			return session;
 		}

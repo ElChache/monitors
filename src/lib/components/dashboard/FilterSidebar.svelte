@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { DashboardFilters, MonitorStats } from '$lib/types/monitor';
-	import { Search, Filter, Activity, TrendingUp, Play, Pause } from 'lucide-svelte';
+	// Removed unused icon imports
 	
 	export let activeFilters: DashboardFilters;
 	export let stats: MonitorStats;
@@ -10,6 +10,8 @@
 	let searchTerm = activeFilters.search || '';
 	let selectedMonitorType = activeFilters.monitorType || 'ALL';
 	let selectedStatus = activeFilters.status || 'ALL';
+
+	// Filter logic is now handled by the select dropdowns
 	
 	// Update filters when local state changes
 	$: {
@@ -20,7 +22,7 @@
 		});
 	}
 	
-	function clearFilters() {
+	function clearFilters(): void {
 		searchTerm = '';
 		selectedMonitorType = 'ALL';
 		selectedStatus = 'ALL';
@@ -66,42 +68,38 @@
 			{/if}
 		</div>
 		
-		<div class="filter-list" role="group" aria-label="Monitor filters">
-			{#each filterOptions as filter}
-				<label class="filter-option">
-					<input
-						type="checkbox"
-						checked={activeFilters.includes(filter.id)}
-						on:change={() => toggleFilter(filter.id)}
-						aria-describedby="filter-{filter.id}-description"
-					/>
-					<span class="filter-checkbox"></span>
-					<span class="filter-label">{filter.label}</span>
-					{#if filter.count !== undefined}
-						<span class="filter-count" id="filter-{filter.id}-description">
-							({filter.count})
-						</span>
-					{/if}
-				</label>
-			{/each}
+		<div class="filter-list" role="group" aria-label="Monitor type filters">
+			<label class="filter-option">
+				<select bind:value={selectedMonitorType}>
+					<option value="ALL">All Monitor Types</option>
+					<option value="CURRENT_STATE">Current State</option>
+					<option value="HISTORICAL_CHANGE">Historical Change</option>
+				</select>
+			</label>
+			
+			<label class="filter-option">
+				<select bind:value={selectedStatus}>
+					<option value="ALL">All Statuses</option>
+					<option value="ACTIVE">Active</option>
+					<option value="INACTIVE">Inactive</option>
+					<option value="TRIGGERED">Triggered</option>
+				</select>
+			</label>
 		</div>
 
 		{#if hasActiveFilters}
 			<div class="active-filters">
 				<h3 class="active-filters-title">Active Filters:</h3>
 				<div class="filter-tags">
-					{#each activeFilters as filter}
-						<span class="filter-tag">
-							{filterOptions.find(f => f.id === filter)?.label || filter}
-							<button
-								class="remove-filter"
-								on:click={() => toggleFilter(filter)}
-								aria-label="Remove {filter} filter"
-							>
-								×
-							</button>
-						</span>
-					{/each}
+					{#if searchTerm}
+						<span class="filter-tag">Search: {searchTerm}</span>
+					{/if}
+					{#if selectedMonitorType !== 'ALL'}
+						<span class="filter-tag">Type: {selectedMonitorType}</span>
+					{/if}
+					{#if selectedStatus !== 'ALL'}
+						<span class="filter-tag">Status: {selectedStatus}</span>
+					{/if}
 				</div>
 			</div>
 		{/if}
@@ -110,11 +108,11 @@
 	<div class="sidebar-section">
 		<h2 class="section-title">Quick Actions</h2>
 		<div class="quick-actions">
-			<a href="/app/monitors/create" class="quick-action-btn primary">
+			<a href="/app/monitors/create" class="quick-action-btn primary" data-sveltekit-preload-data="hover">
 				<span class="action-icon">+</span>
 				Create Monitor
 			</a>
-			<a href="/app/templates" class="quick-action-btn secondary">
+			<a href="/app/templates" class="quick-action-btn secondary" data-sveltekit-preload-data="hover">
 				<span class="action-icon">📋</span>
 				Browse Templates
 			</a>
@@ -221,54 +219,7 @@
 		padding: 0.5rem 0;
 	}
 
-	.filter-option input[type="checkbox"] {
-		position: absolute;
-		opacity: 0;
-		pointer-events: none;
-	}
 
-	.filter-checkbox {
-		width: 1.25rem;
-		height: 1.25rem;
-		border: 2px solid var(--border);
-		border-radius: 0.25rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: white;
-		transition: all 0.2s ease;
-		flex-shrink: 0;
-	}
-
-	.filter-option input:checked + .filter-checkbox {
-		background: var(--primary);
-		border-color: var(--primary);
-	}
-
-	.filter-option input:checked + .filter-checkbox::after {
-		content: '✓';
-		color: white;
-		font-size: 0.875rem;
-		font-weight: bold;
-	}
-
-	.filter-option input:focus + .filter-checkbox {
-		outline: 2px solid var(--primary);
-		outline-offset: 2px;
-	}
-
-	.filter-label {
-		font-size: 0.875rem;
-		color: var(--text-primary);
-		font-weight: 500;
-		flex: 1;
-	}
-
-	.filter-count {
-		font-size: 0.75rem;
-		color: var(--text-secondary);
-		font-weight: 500;
-	}
 
 	.active-filters {
 		margin-top: 0.5rem;

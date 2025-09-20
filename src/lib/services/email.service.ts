@@ -10,7 +10,7 @@ export interface EmailTemplate {
 	subject: string;
 	htmlContent: string;
 	textContent: string;
-	variables: Record<string, any>;
+	variables: Record<string, unknown>;
 }
 
 export interface EmailSendResult {
@@ -31,6 +31,30 @@ export interface EmailPreferences {
 		timezone: string;
 	};
 	unsubscribed: boolean;
+}
+
+export interface EmailAnalytics {
+	totalEmails: number;
+	successfulEmails: number;
+	deliveryRate: number;
+	emailsByType: Array<{
+		type: string;
+		_count: number;
+	}>;
+	recentActivity: Array<{
+		id: string;
+		userId: string;
+		type: string;
+		success: boolean;
+		messageId?: string | null;
+		error?: string | null;
+		deliveryStatus: string;
+		sentAt: Date;
+		user: {
+			email: string;
+			name: string;
+		};
+	}>;
 }
 
 export class EmailService {
@@ -785,7 +809,7 @@ MonitorHub - Intelligent Monitoring with Combination Intelligence
 	/**
 	 * Get email analytics for admin dashboard
 	 */
-	static async getEmailAnalytics(timeRange?: { start: Date; end: Date }) {
+	static async getEmailAnalytics(timeRange?: { start: Date; end: Date }): Promise<EmailAnalytics> {
 		const where = timeRange ? {
 			sentAt: {
 				gte: timeRange.start,

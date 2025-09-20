@@ -2,14 +2,14 @@
 // Automated monitor evaluations and email notifications
 
 import { db } from '$lib/database';
-import { TemporalStateManager } from './temporal.service';
+import { TemporalStateManager, type TemporalEvaluationResult } from './temporal.service';
 import { EmailService } from './email.service';
 import type { Monitor } from '@prisma/client';
 
 export interface JobResult {
 	success: boolean;
 	message: string;
-	data?: any;
+	data?: unknown;
 	error?: string;
 }
 
@@ -168,11 +168,21 @@ export class BackgroundJobService {
 	 * Process a single monitor evaluation job
 	 */
 	static async processMonitorEvaluationJob(job: MonitorEvaluationJob): Promise<JobResult> {
+		const startTime = Date.now();
+		
 		try {
 			console.log(`Evaluating monitor ${job.monitorId}...`);
 			
-			// Perform the evaluation using temporal logic
-			const evaluationResult = await TemporalStateManager.evaluateMonitor(job.monitorId);
+			// Perform the evaluation using temporal logic with monitoring
+			const evaluationResult = await this.withMonitoring(
+				() => TemporalStateManager.evaluateMonitor(job.monitorId),
+				'monitor_evaluation',
+				{ 
+					monitorId: job.monitorId, 
+					userId: job.userId,
+					retryCount: job.retryCount
+				}
+			);
 			
 			// If evaluation triggered (result is true), send notifications
 			if (evaluationResult.result) {
@@ -189,6 +199,27 @@ export class BackgroundJobService {
 
 		} catch (error) {
 			console.error(`Monitor evaluation failed for ${job.monitorId}:`, error);
+			
+			// Track error in monitoring system
+			try {
+				const { MonitoringService } = await import('$lib/services/monitoring.service');
+				MonitoringService.createAlert({
+					alertType: 'error',
+					severity: 'high',
+					title: `Monitor Evaluation Failed`,
+					description: `Monitor ${job.monitorId} evaluation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+					metadata: {
+						monitorId: job.monitorId,
+						userId: job.userId,
+						retryCount: job.retryCount,
+						processingTime: Date.now() - startTime,
+						error: error instanceof Error ? error.message : undefined
+					}
+				});
+			} catch (monitoringError) {
+				console.warn('Failed to create monitoring alert:', monitoringError);
+			}
+			
 			return {
 				success: false,
 				message: `Evaluation failed: ${error}`,
@@ -198,9 +229,67 @@ export class BackgroundJobService {
 	}
 
 	/**
+	 * Wrapper for operations with monitoring integration
+	 */
+	private static async withMonitoring<T>(
+		operation: () => Promise<T>,
+		operationType: string,
+		metadata: Record<string, any> = {}
+	): Promise<T> {
+		const startTime = Date.now();
+		
+		try {
+			const result = await operation();
+			const processingTime = Date.now() - startTime;
+			
+			// Record successful operation metrics
+			try {
+				const { MonitoringService } = await import('$lib/services/monitoring.service');
+				MonitoringService.recordMetric({
+					metricType: 'monitor_evaluation',
+					value: processingTime,
+					unit: 'milliseconds',
+					metadata: {
+						...metadata,
+						success: true,
+						operationType
+					}
+				});
+			} catch (error) {
+				// Don't fail the operation if monitoring fails
+				console.warn('Failed to record monitoring metric:', error);
+			}
+			
+			return result;
+		} catch (error) {
+			const processingTime = Date.now() - startTime;
+			
+			// Record failed operation metrics
+			try {
+				const { MonitoringService } = await import('$lib/services/monitoring.service');
+				MonitoringService.recordMetric({
+					metricType: 'monitor_evaluation',
+					value: processingTime,
+					unit: 'milliseconds',
+					metadata: {
+						...metadata,
+						success: false,
+						operationType,
+						error: error instanceof Error ? error.message : 'Unknown error'
+					}
+				});
+			} catch (monitoringError) {
+				console.warn('Failed to record monitoring metric:', monitoringError);
+			}
+			
+			throw error;
+		}
+	}
+
+	/**
 	 * Trigger notifications when monitor condition is met
 	 */
-	static async triggerNotifications(monitorId: string, evaluationResult: any): Promise<void> {
+	static async triggerNotifications(monitorId: string, evaluationResult: TemporalEvaluationResult): Promise<void> {
 		try {
 			// Get monitor details for notification
 			const monitor = await db.monitor.findUniqueOrThrow({

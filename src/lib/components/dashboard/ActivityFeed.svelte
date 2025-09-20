@@ -82,7 +82,7 @@
 		return timestamp;
 	}
 
-	function refreshActivities() {
+	function refreshActivities(): void {
 		// TODO: Replace with actual API call
 		console.log('Refreshing activities...');
 	}
@@ -156,7 +156,7 @@
 					<div class="activity-actions">
 						<button 
 							class="action-link"
-							on:click={() => {/* TODO: Navigate to monitor */}}
+							on:click={(): void => {/* TODO: Navigate to monitor */}}
 							aria-label="View {activity.monitor}"
 						>
 							View
@@ -171,7 +171,7 @@
 		<div class="feed-footer">
 			<button 
 				class="view-all-btn"
-				on:click={() => {/* TODO: Navigate to full activity log */}}
+				on:click={(): void => {/* TODO: Navigate to full activity log */}}
 			>
 				View All Activity ({activities.length - maxItems} more)
 			</button>

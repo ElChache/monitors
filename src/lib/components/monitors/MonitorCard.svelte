@@ -11,28 +11,27 @@
 
 	$: isCurrentState = monitor.monitorType === 'CURRENT_STATE';
 	$: lastEvaluation = monitor.lastEvaluation;
-	$: statusColor = monitor.isActive ? (lastEvaluation?.evaluationResult ? 'success' : 'neutral') : 'inactive';
 	$: hasRecentActivity = lastEvaluation && new Date(lastEvaluation.createdAt).getTime() > Date.now() - (24 * 60 * 60 * 1000);
 	
-	function handleEdit() {
+	function handleEdit(): void {
 		onEdit?.(monitor);
 	}
 	
-	function handleDelete() {
+	function handleDelete(): void {
 		if (confirm(`Are you sure you want to delete "${monitor.name}"?`)) {
 			onDelete?.(monitor);
 		}
 	}
 	
-	function handleToggleActive() {
+	function handleToggleActive(): void {
 		onToggleActive?.(monitor);
 	}
 	
-	function handleEvaluateNow() {
+	function handleEvaluateNow(): void {
 		onEvaluateNow?.(monitor);
 	}
 	
-	function formatDate(date: Date) {
+	function formatDate(date: Date): string {
 		return new Intl.DateTimeFormat('en-US', {
 			month: 'short',
 			day: 'numeric',
@@ -41,15 +40,10 @@
 		}).format(new Date(date));
 	}
 	
-	function getStatusText() {
-		if (!monitor.isActive) return 'Inactive';
-		if (!lastEvaluation) return 'Never evaluated';
-		return lastEvaluation.evaluationResult ? 'Condition met' : 'Monitoring';
-	}
 </script>
 
 <div 
-	class="monitor-card" 
+	class="card monitor-card" 
 	class:compact
 	class:current-state={isCurrentState}
 	class:historical-change={!isCurrentState}
@@ -58,7 +52,7 @@
 	class:has-activity={hasRecentActivity}
 >
 	<!-- Header -->
-	<div class="card-header">
+	<div class="card-body">
 		<div class="monitor-info">
 			<div class="monitor-type-indicator">
 				{#if isCurrentState}
@@ -77,9 +71,22 @@
 			{/if}
 		</div>
 		
-		<div class="status-indicator {statusColor}">
-			<div class="status-dot"></div>
-			<span class="status-text">{getStatusText()}</span>
+		<div class="monitor-status">
+			{#if monitor.isActive}
+				{#if lastEvaluation?.evaluationResult}
+					<span class="status-indicator status-triggered">
+						Triggered
+					</span>
+				{:else}
+					<span class="status-indicator status-active">
+						Active
+					</span>
+				{/if}
+			{:else}
+				<span class="status-indicator status-inactive">
+					Inactive
+				</span>
+			{/if}
 		</div>
 	</div>
 	
@@ -95,7 +102,7 @@
 					<span class="facts-count">{monitor.facts.length} fact{monitor.facts.length !== 1 ? 's' : ''}</span>
 					{#if monitor.facts.length <= 3}
 						<div class="fact-tags">
-							{#each monitor.facts as fact}
+							{#each monitor.facts as fact (fact.id)}
 								<span class="fact-tag">{fact.factName}</span>
 							{/each}
 						</div>
@@ -121,10 +128,10 @@
 			{/if}
 		</div>
 		
-		<div class="action-buttons">
+		<div class="action-buttons flex gap-2">
 			{#if onEvaluateNow}
 				<button 
-					class="action-btn secondary" 
+					class="btn btn-ghost btn-sm" 
 					on:click={handleEvaluateNow}
 					title="Evaluate now"
 					disabled={!monitor.isActive}
@@ -135,7 +142,7 @@
 			
 			{#if onToggleActive}
 				<button 
-					class="action-btn secondary" 
+					class="btn btn-ghost btn-sm" 
 					on:click={handleToggleActive}
 					title={monitor.isActive ? 'Pause monitor' : 'Activate monitor'}
 				>
@@ -149,7 +156,7 @@
 			
 			{#if onEdit}
 				<button 
-					class="action-btn secondary" 
+					class="btn btn-ghost btn-sm" 
 					on:click={handleEdit}
 					title="Edit monitor"
 				>
@@ -159,7 +166,7 @@
 			
 			{#if onDelete}
 				<button 
-					class="action-btn danger" 
+					class="btn btn-error btn-sm" 
 					on:click={handleDelete}
 					title="Delete monitor"
 				>

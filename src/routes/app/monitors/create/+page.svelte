@@ -5,6 +5,8 @@
 	import type { PageData } from './$types';
 	
 	export let data: PageData;
+	// Use the session data for authentication checks
+	$: user = data.session?.user;
 	
 	
 	// Handle form submission
@@ -26,6 +28,7 @@
 					prompt: prompt,
 					name: name,
 					frequency: frequency,
+					monitorType: monitorType,
 				}),
 			});
 			

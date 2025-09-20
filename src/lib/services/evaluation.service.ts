@@ -11,7 +11,7 @@ export interface CombinationEvaluation {
   confidence: number;
   reasoning: string;
   factResults: Record<string, {
-    value: any;
+    value: unknown;
     evaluated: boolean;
     contribution: number;
   }>;
@@ -25,9 +25,9 @@ export interface TemporalEvaluation {
   significance: number;
   confidence: number;
   reasoning: string;
-  previousValues: Record<string, any>;
-  currentValues: Record<string, any>;
-  changeDetails: Record<string, any>;
+  previousValues: Record<string, unknown>;
+  currentValues: Record<string, unknown>;
+  changeDetails: Record<string, unknown>;
   evaluationTime: number;
 }
 
@@ -36,7 +36,7 @@ export class EvaluationService {
    * Evaluates current state monitors using Combination Intelligence
    */
   async evaluateCurrentState(
-    facts: Record<string, any>,
+    facts: Record<string, unknown>,
     logicExpression: string
   ): Promise<CombinationEvaluation> {
     const startTime = Date.now();
@@ -65,8 +65,8 @@ export class EvaluationService {
    * Evaluates historical change monitors using temporal logic
    */
   async evaluateHistoricalChange(
-    currentValues: Record<string, any>,
-    previousValues: Record<string, any>,
+    currentValues: Record<string, unknown>,
+    previousValues: Record<string, unknown>,
     changeCondition: string
   ): Promise<TemporalEvaluation> {
     const startTime = Date.now();
@@ -98,8 +98,8 @@ export class EvaluationService {
    * Evaluates combination of current state and historical change
    */
   async evaluateCombination(
-    currentFacts: Record<string, any>,
-    previousFacts: Record<string, any>,
+    currentFacts: Record<string, unknown>,
+    previousFacts: Record<string, unknown>,
     stateLogic: string,
     changeCondition?: string
   ): Promise<{
@@ -195,11 +195,11 @@ export class EvaluationService {
   }
 
   private analyzeFacts(
-    facts: Record<string, any>,
+    facts: Record<string, unknown>,
     logicExpression: string,
     aiResult: EvaluationResult
-  ): Record<string, { value: any; evaluated: boolean; contribution: number }> {
-    const factResults: Record<string, { value: any; evaluated: boolean; contribution: number }> = {};
+  ): Record<string, { value: unknown; evaluated: boolean; contribution: number }> {
+    const factResults: Record<string, { value: unknown; evaluated: boolean; contribution: number }> = {};
     
     for (const [factName, value] of Object.entries(facts)) {
       factResults[factName] = {
@@ -227,8 +227,8 @@ export class EvaluationService {
   }
 
   private determineChangeType(
-    currentValues: Record<string, any>,
-    previousValues: Record<string, any>,
+    currentValues: Record<string, unknown>,
+    previousValues: Record<string, unknown>,
     aiResult: ChangeResult
   ): 'increase' | 'decrease' | 'volatility' | 'pattern' | 'none' {
     if (!aiResult.hasChanged) return 'none';

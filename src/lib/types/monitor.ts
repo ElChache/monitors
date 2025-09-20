@@ -26,7 +26,7 @@ export interface MonitorFact {
 	factName: string;
 	factPrompt: string;
 	dataSourceType?: string;
-	dataSourceConfig?: Record<string, any>;
+	dataSourceConfig?: Record<string, unknown>;
 	createdAt: Date;
 	
 	// Recent fact values (when populated)
@@ -40,7 +40,7 @@ export interface FactValue {
 	valueText?: string;
 	valueNumeric?: number;
 	valueBoolean?: boolean;
-	valueJson?: Record<string, any>;
+	valueJson?: Record<string, unknown>;
 	extractedAt: Date;
 	aiProvider?: string;
 	processingTimeMs?: number;
@@ -62,7 +62,7 @@ export interface MonitorEvaluation {
 	evaluationResult: boolean;
 	previousResult?: boolean;
 	stateChanged: boolean;
-	factSnapshot?: Record<string, any>;
+	factSnapshot?: Record<string, unknown>;
 	evaluatedAt: Date;
 	processingTimeMs?: number;
 	aiProvider?: string;
@@ -82,7 +82,7 @@ export interface MonitorCardProps {
 export interface DashboardFilters {
 	search: string;
 	monitorType: 'ALL' | 'CURRENT_STATE' | 'HISTORICAL_CHANGE';
-	status: 'ALL' | 'ACTIVE' | 'INACTIVE';
+	status: 'ALL' | 'ACTIVE' | 'INACTIVE' | 'TRIGGERED';
 	category?: string;
 }
 

@@ -17,6 +17,19 @@ export default ts.config(
         extraFileExtensions: ['.svelte'],
         sourceType: 'module',
         ecmaVersion: 2020
+      },
+      globals: {
+        fetch: 'readonly',
+        console: 'readonly',
+        alert: 'readonly',
+        confirm: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        CustomEvent: 'readonly',
+        NodeJS: 'readonly',
+        window: 'readonly'
       }
     },
     rules: {

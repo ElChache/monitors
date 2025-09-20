@@ -4,7 +4,9 @@
 	import FilterSidebar from '$lib/components/dashboard/FilterSidebar.svelte';
 	import ActivityFeed from '$lib/components/dashboard/ActivityFeed.svelte';
 	import MonitorCard from '$lib/components/monitors/MonitorCard.svelte';
-	import HistoricalMonitorCard from '$lib/components/monitors/HistoricalMonitorCard.svelte';
+	import ToastContainer from '$lib/components/ui/ToastContainer.svelte';
+	import { toasts, showError, showSuccess } from '$lib/stores/toast';
+	import { goto } from '$app/navigation';
 
 	export let data: PageData;
 	
@@ -41,7 +43,7 @@
 		}
 	});
 	
-	async function loadMonitors() {
+	async function loadMonitors(): Promise<void> {
 		const response = await fetch('/api/monitors');
 		if (!response.ok) {
 			throw new Error('Failed to load monitors');
@@ -51,7 +53,7 @@
 		updateStats();
 	}
 	
-	function updateStats() {
+	function updateStats(): void {
 		stats = {
 			totalMonitors: monitors.length,
 			activeMonitors: monitors.filter(m => m.isActive).length,
@@ -60,122 +62,45 @@
 		};
 	}
 
-	// Mock monitor data for fallback
-	const mockMonitors: Monitor[] = [
-		{
-			id: '1',
-			userId: 'user1',
-			name: 'Tesla Stock Below $200',
-			description: 'Monitor Tesla stock price for investment opportunity',
-			naturalLanguagePrompt: 'Alert me when Tesla stock drops below $200 per share',
-			monitorType: 'CURRENT_STATE',
-			isActive: true,
-			evaluationFrequencyMins: 30,
-			createdAt: new Date('2024-01-15'),
-			updatedAt: new Date('2024-01-20'),
-			facts: [
-				{
-					id: 'fact1',
-					monitorId: '1',
-					factName: 'Tesla Stock Price',
-					factPrompt: 'Current Tesla (TSLA) stock price',
-					createdAt: new Date('2024-01-15')
-				}
-			],
-			lastEvaluation: {
-				id: 'eval1',
-				monitorId: '1',
-				evaluationResult: false,
-				stateChanged: false,
-				evaluatedAt: new Date(),
-				createdAt: new Date()
-			}
-		},
-		{
-			id: '2',
-			userId: 'user1',
-			name: 'Perfect Tesla Timing',
-			description: 'Complex combination intelligence for Tesla investment',
-			naturalLanguagePrompt: 'Tesla stock drops to $200 AND Elon Musk tweets about innovation AND EV tax credits get renewed',
-			monitorType: 'CURRENT_STATE',
-			isActive: true,
-			evaluationFrequencyMins: 15,
-			createdAt: new Date('2024-01-10'),
-			updatedAt: new Date('2024-01-20'),
-			facts: [
-				{
-					id: 'fact2a',
-					monitorId: '2',
-					factName: 'Tesla Stock Price',
-					factPrompt: 'Current Tesla (TSLA) stock price',
-					createdAt: new Date('2024-01-10')
-				},
-				{
-					id: 'fact2b',
-					monitorId: '2',
-					factName: 'Elon Musk Innovation Tweet',
-					factPrompt: 'Recent tweets from Elon Musk about innovation',
-					createdAt: new Date('2024-01-10')
-				},
-				{
-					id: 'fact2c',
-					monitorId: '2',
-					factName: 'EV Tax Credits',
-					factPrompt: 'Current status of EV tax credit legislation',
-					createdAt: new Date('2024-01-10')
-				}
-			],
-			lastEvaluation: {
-				id: 'eval2',
-				monitorId: '2',
-				evaluationResult: true,
-				stateChanged: true,
-				evaluatedAt: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
-				createdAt: new Date(Date.now() - 2 * 60 * 1000)
-			}
-		},
-		{
-			id: '3',
-			userId: 'user1',
-			name: 'Bitcoin Price Drop',
-			description: 'Monitor Bitcoin for significant price drops',
-			naturalLanguagePrompt: 'Alert me when Bitcoin drops more than 10% in a single day',
-			monitorType: 'HISTORICAL_CHANGE',
-			isActive: true,
-			evaluationFrequencyMins: 60,
-			createdAt: new Date('2024-01-05'),
-			updatedAt: new Date('2024-01-18'),
-			facts: [
-				{
-					id: 'fact3',
-					monitorId: '3',
-					factName: 'Bitcoin Price',
-					factPrompt: 'Current Bitcoin (BTC) price in USD',
-					createdAt: new Date('2024-01-05')
-				}
-			],
-			lastEvaluation: {
-				id: 'eval3',
-				monitorId: '3',
-				evaluationResult: false,
-				stateChanged: false,
-				evaluatedAt: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-				createdAt: new Date(Date.now() - 5 * 60 * 1000)
-			}
-		}
-	];
 
-	function handleFilterChange(filters: DashboardFilters) {
+	function handleFilterChange(filters: DashboardFilters): void {
 		activeFilters = filters;
-		// TODO: Filter monitors based on active filters
 	}
 
-	async function handleMonitorEdit(monitor: Monitor) {
-		// TODO: Navigate to edit monitor page
-		console.log('Edit monitor:', monitor);
+	// Computed filtered monitors based on active filters
+	$: filteredMonitors = monitors.filter(monitor => {
+		// Search filter
+		if (activeFilters.search && activeFilters.search.trim()) {
+			const searchTerm = activeFilters.search.toLowerCase();
+			const matchesSearch = 
+				monitor.name.toLowerCase().includes(searchTerm) ||
+				monitor.description?.toLowerCase().includes(searchTerm) ||
+				monitor.naturalLanguagePrompt.toLowerCase().includes(searchTerm);
+			if (!matchesSearch) return false;
+		}
+
+		// Monitor type filter
+		if (activeFilters.monitorType && activeFilters.monitorType !== 'ALL') {
+			if (activeFilters.monitorType === 'CURRENT_STATE' && monitor.monitorType !== 'CURRENT_STATE') return false;
+			if (activeFilters.monitorType === 'HISTORICAL_CHANGE' && monitor.monitorType !== 'HISTORICAL_CHANGE') return false;
+		}
+
+		// Status filter
+		if (activeFilters.status && activeFilters.status !== 'ALL') {
+			if (activeFilters.status === 'ACTIVE' && !monitor.isActive) return false;
+			if (activeFilters.status === 'INACTIVE' && monitor.isActive) return false;
+			if (activeFilters.status === 'TRIGGERED' && (!monitor.isActive || !monitor.lastEvaluation?.evaluationResult)) return false;
+		}
+
+		return true;
+	});
+
+	async function handleMonitorEdit(monitor: Monitor): Promise<void> {
+		// Navigate to edit monitor page
+		await goto(`/app/monitors/edit/${monitor.id}`);
 	}
 
-	async function handleMonitorToggle(monitor: Monitor) {
+	async function handleMonitorToggle(monitor: Monitor): Promise<void> {
 		try {
 			const response = await fetch(`/api/monitors/${monitor.id}/toggle`, {
 				method: 'POST'
@@ -184,13 +109,14 @@
 				throw new Error('Failed to toggle monitor');
 			}
 			await loadMonitors(); // Refresh the list
+			showSuccess(`Monitor ${monitor.isActive ? 'paused' : 'activated'} successfully`);
 		} catch (error) {
 			console.error('Failed to toggle monitor:', error);
-			alert('Failed to toggle monitor. Please try again.');
+			showError('Failed to toggle monitor. Please try again.');
 		}
 	}
 
-	async function handleMonitorDelete(monitor: Monitor) {
+	async function handleMonitorDelete(monitor: Monitor): Promise<void> {
 		if (!confirm(`Are you sure you want to delete "${monitor.name}"?`)) {
 			return;
 		}
@@ -203,13 +129,14 @@
 				throw new Error('Failed to delete monitor');
 			}
 			await loadMonitors(); // Refresh the list
+			showSuccess(`Monitor "${monitor.name}" deleted successfully`);
 		} catch (error) {
 			console.error('Failed to delete monitor:', error);
-			alert('Failed to delete monitor. Please try again.');
+			showError('Failed to delete monitor. Please try again.');
 		}
 	}
 
-	async function handleMonitorEvaluate(monitor: Monitor) {
+	async function handleMonitorEvaluate(monitor: Monitor): Promise<void> {
 		try {
 			const response = await fetch(`/api/monitors/${monitor.id}/evaluate`, {
 				method: 'POST'
@@ -218,9 +145,10 @@
 				throw new Error('Failed to evaluate monitor');
 			}
 			await loadMonitors(); // Refresh to get updated evaluation
+			showSuccess(`Monitor "${monitor.name}" evaluated successfully`);
 		} catch (error) {
 			console.error('Failed to evaluate monitor:', error);
-			alert('Failed to evaluate monitor. Please try again.');
+			showError('Failed to evaluate monitor. Please try again.');
 		}
 	}
 </script>
@@ -243,9 +171,11 @@
 						placeholder="Search monitors..." 
 						class="search-input"
 						aria-label="Search monitors"
+						bind:value={activeFilters.search}
+						on:input={(): void => handleFilterChange(activeFilters)}
 					/>
 				</div>
-				<a href="/app/monitors/create" class="create-btn">
+				<a href="/app/monitors/create" class="btn btn-primary" data-sveltekit-preload-data="hover">
 					<span class="plus-icon">+</span>
 					Create Monitor
 				</a>
@@ -288,13 +218,22 @@
 						<div class="empty-icon">📊</div>
 						<h3>No monitors yet</h3>
 						<p>Create your first monitor to start tracking opportunities with Combination Intelligence.</p>
-						<a href="/app/monitors/create" class="primary-btn">
+						<a href="/app/monitors/create" class="btn btn-primary" data-sveltekit-preload-data="hover">
 							Create Your First Monitor
 						</a>
 					</div>
+				{:else if filteredMonitors.length === 0}
+					<div class="empty-monitors">
+						<div class="empty-icon">🔍</div>
+						<h3>No monitors match your filters</h3>
+						<p>Try adjusting your search terms or filters to find monitors.</p>
+						<button class="btn btn-secondary" on:click={(): void => handleFilterChange({ search: '', monitorType: 'ALL', status: 'ALL' })}>
+							Clear Filters
+						</button>
+					</div>
 				{:else}
 					<div class="monitors-grid">
-						{#each monitors as monitor}
+						{#each filteredMonitors as monitor (monitor.id)}
 							<MonitorCard
 								{monitor}
 								onEdit={handleMonitorEdit}
@@ -321,7 +260,7 @@
 						Instead of basic alerts like "Tesla stock drops to $200", create powerful combinations 
 						like "Tesla stock drops to $200 AND Elon Musk tweets about innovation AND EV tax credits get renewed".
 					</p>
-					<a href="/app/templates" class="learn-more-link">
+					<a href="/app/templates" class="learn-more-link" data-sveltekit-preload-data="hover">
 						See Examples →
 					</a>
 				</div>
@@ -329,6 +268,9 @@
 		</div>
 	</div>
 </div>
+
+<!-- Toast Notifications -->
+<ToastContainer toasts={$toasts} />
 
 <style>
 	:root {
@@ -394,23 +336,6 @@
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
-	.create-btn {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		padding: 0.75rem 1.5rem;
-		background: var(--primary);
-		color: white;
-		text-decoration: none;
-		border-radius: 0.375rem;
-		font-weight: 600;
-		transition: all 0.2s ease;
-	}
-
-	.create-btn:hover {
-		background: #2563EB;
-		transform: translateY(-1px);
-	}
 
 	.plus-icon {
 		font-size: 1.25rem;
@@ -513,21 +438,6 @@
 		line-height: 1.5;
 	}
 
-	.primary-btn {
-		display: inline-block;
-		padding: 0.75rem 1.5rem;
-		background: var(--primary);
-		color: white;
-		text-decoration: none;
-		border-radius: 0.375rem;
-		font-weight: 600;
-		transition: all 0.2s ease;
-	}
-
-	.primary-btn:hover {
-		background: #2563EB;
-		transform: translateY(-1px);
-	}
 
 	.activity-section,
 	.info-section {
@@ -636,10 +546,6 @@
 
 		.search-input {
 			min-width: unset;
-		}
-
-		.create-btn {
-			justify-content: center;
 		}
 	}
 </style>

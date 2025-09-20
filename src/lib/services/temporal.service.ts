@@ -8,7 +8,7 @@ import type { Monitor, MonitorFact, FactValue } from '@prisma/client';
 export interface Fact {
 	id: string;
 	name: string;
-	value: any;
+	value: string | number | boolean | null;
 	timestamp: Date;
 	source: string;
 }
@@ -23,11 +23,11 @@ export interface TemporalEvaluationResult {
 
 export interface FactCollectionResult {
 	factId: string;
-	value: any;
+	value: string | number | boolean | null;
 	confidence: number;
 	source: string;
 	timestamp: Date;
-	metadata?: any;
+	metadata?: Record<string, unknown>;
 }
 
 export interface HistoricalDataQuery {
@@ -128,7 +128,7 @@ export class TemporalStateManager {
 		// based on the fact's source (stock APIs, weather APIs, news APIs, etc.)
 		
 		const timestamp = new Date();
-		let value: any;
+		let value: string | number | boolean | null;
 		let confidence = 0.95;
 		
 		// Mock data generation based on fact source  
@@ -176,14 +176,16 @@ export class TemporalStateManager {
 	 * Evaluate current state monitor using Boolean logic
 	 */
 	static async evaluateCurrentState(
-		monitor: Monitor & { facts: MonitorFact[], logic: any },
+		monitor: Monitor & { facts: MonitorFact[], logic: unknown },
 		currentFacts: Fact[]
 	): Promise<TemporalEvaluationResult> {
 		try {
 			// Convert facts to the format expected by AI service
-			const factsRecord: Record<string, any> = {};
+			const factsRecord: Record<string, string | number | boolean> = {};
 			currentFacts.forEach(fact => {
-				factsRecord[fact.name] = fact.value;
+				if (fact.value !== null) {
+					factsRecord[fact.name] = fact.value;
+				}
 			});
 
 			// Use AI service to evaluate current state
@@ -207,21 +209,25 @@ export class TemporalStateManager {
 	 * Evaluate historical change monitor using temporal comparison
 	 */
 	static async evaluateHistoricalChange(
-		monitor: Monitor & { facts: MonitorFact[], logic: any },
+		monitor: Monitor & { facts: MonitorFact[], logic: unknown },
 		currentFacts: Fact[],
 		historicalFacts: Fact[]
 	): Promise<TemporalEvaluationResult> {
 		try {
 			// Convert facts to the format expected by AI service
-			const currentFactsRecord: Record<string, any> = {};
-			const historicalFactsRecord: Record<string, any> = {};
+			const currentFactsRecord: Record<string, string | number | boolean> = {};
+			const historicalFactsRecord: Record<string, string | number | boolean> = {};
 			
 			currentFacts.forEach(fact => {
-				currentFactsRecord[fact.name] = fact.value;
+				if (fact.value !== null) {
+					currentFactsRecord[fact.name] = fact.value;
+				}
 			});
 			
 			historicalFacts.forEach(fact => {
-				historicalFactsRecord[fact.name] = fact.value;
+				if (fact.value !== null) {
+					historicalFactsRecord[fact.name] = fact.value;
+				}
 			});
 
 			// Use AI service to evaluate historical change
@@ -267,11 +273,11 @@ export class TemporalStateManager {
 
 			if (historicalValue) {
 				// Extract the actual value from the appropriate field
-				let value: any;
+				let value: string | number | boolean | null;
 				if (historicalValue.valueText !== null) value = historicalValue.valueText;
 				else if (historicalValue.valueNumeric !== null) value = Number(historicalValue.valueNumeric);
 				else if (historicalValue.valueBoolean !== null) value = historicalValue.valueBoolean;
-				else if (historicalValue.valueJson !== null) value = historicalValue.valueJson;
+				else if (historicalValue.valueJson !== null) value = historicalValue.valueJson as string | number | boolean;
 				else value = null;
 
 				historicalFacts.push({
@@ -302,11 +308,11 @@ export class TemporalStateManager {
 		if (!lastValue) return null;
 
 		// Extract the actual value from the appropriate field
-		let value: any;
+		let value: string | number | boolean | null;
 		if (lastValue.valueText !== null) value = lastValue.valueText;
 		else if (lastValue.valueNumeric !== null) value = Number(lastValue.valueNumeric);
 		else if (lastValue.valueBoolean !== null) value = lastValue.valueBoolean;
-		else if (lastValue.valueJson !== null) value = lastValue.valueJson;
+		else if (lastValue.valueJson !== null) value = lastValue.valueJson as string | number | boolean;
 		else value = null;
 
 		return {
@@ -379,7 +385,7 @@ export class TemporalStateManager {
 	static async getEvaluationHistory(
 		monitorId: string,
 		limit: number = 50
-	): Promise<any[]> {
+	): Promise<unknown[]> {
 		return await db.monitorEvaluation.findMany({
 			where: { monitorId },
 			orderBy: { evaluatedAt: 'desc' },
@@ -400,8 +406,8 @@ export class TemporalStateManager {
 	 */
 	static async detectSignificantChange(
 		_factName: string,
-		currentValue: any,
-		historicalValues: any[],
+		currentValue: string | number | boolean | null,
+		historicalValues: (string | number | boolean | null)[],
 		threshold: number = 5
 	): Promise<{ isSignificant: boolean; confidence: number; explanation: string }> {
 		try {

@@ -21,6 +21,8 @@ export class AIService {
   private currentProvider: AIProviderType;
   private config: AIConfig;
   private usageMetrics: AIUsageMetrics[] = [];
+  private cache: Map<string, { result: unknown; timestamp: number }> = new Map();
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor(config?: Partial<AIConfig>) {
     this.config = {
@@ -42,7 +44,7 @@ export class AIService {
     this.initializeProviders();
   }
 
-  private initializeProviders() {
+  private initializeProviders(): void {
     try {
       this.providers.set('claude', new ClaudeProvider());
     } catch (error) {
@@ -68,17 +70,45 @@ export class AIService {
     return provider;
   }
 
+  private getCacheKey(operationName: string, ...args: unknown[]): string {
+    return `${operationName}:${JSON.stringify(args)}`;
+  }
+
+  private isValidCacheEntry(entry: { result: unknown; timestamp: number }): boolean {
+    return Date.now() - entry.timestamp < this.CACHE_TTL;
+  }
+
   private async executeWithFallback<T>(
     operation: (provider: AIProvider) => Promise<T>,
-    operationName: string
+    operationName: string,
+    cacheKey?: string
   ): Promise<T> {
+    // Check cache first for non-critical operations
+    if (cacheKey && this.cache.has(cacheKey)) {
+      const cached = this.cache.get(cacheKey)!;
+      if (this.isValidCacheEntry(cached)) {
+        return cached.result as T;
+      } else {
+        this.cache.delete(cacheKey);
+      }
+    }
     const startTime = Date.now();
     let lastError: Error | null = null;
 
     // Try primary provider
     try {
       const result = await this.executeWithRetry(operation, this.getProvider());
-      this.recordUsage(this.currentProvider, Date.now() - startTime, true);
+      this.recordUsage(this.currentProvider, Date.now() - startTime);
+      
+      // Cache successful results for appropriate operations
+      if (cacheKey && (operationName === 'extractFacts' || operationName === 'classifyMonitorType')) {
+        this.cache.set(cacheKey, { result, timestamp: Date.now() });
+        // Clean up old cache entries periodically
+        if (this.cache.size > 100) {
+          this.cleanupCache();
+        }
+      }
+      
       return result;
     } catch (error) {
       lastError = error as Error;
@@ -92,7 +122,7 @@ export class AIService {
         try {
           console.log(`Switching to fallback provider: ${this.config.fallbackProvider}`);
           const result = await this.executeWithRetry(operation, fallbackProvider);
-          this.recordUsage(this.config.fallbackProvider, Date.now() - startTime, true);
+          this.recordUsage(this.config.fallbackProvider, Date.now() - startTime);
           return result;
         } catch (fallbackError) {
           console.error(`Fallback provider ${this.config.fallbackProvider} also failed:`, fallbackError);
@@ -101,7 +131,7 @@ export class AIService {
       }
     }
 
-    this.recordUsage(this.currentProvider, Date.now() - startTime, false);
+    this.recordUsage(this.currentProvider, Date.now() - startTime);
     throw new Error(`${operationName} failed with all available providers. Last error: ${lastError?.message}`);
   }
 
@@ -127,13 +157,12 @@ export class AIService {
     throw lastError || new Error('Unknown error during retry execution');
   }
 
-  private recordUsage(provider: AIProviderType, responseTime: number, _success: boolean) {
-    // Simplified cost calculation - in production, this would be more sophisticated
-    const estimatedCost = this.estimateCost(provider, responseTime);
+  private recordUsage(provider: AIProviderType, responseTime: number, actualTokens?: number): void {
+    const estimatedCost = this.estimateCost(provider, responseTime, actualTokens);
     
     const metric: AIUsageMetrics = {
       provider,
-      tokensUsed: Math.floor(responseTime / 10), // Rough estimate
+      tokensUsed: actualTokens || Math.floor(responseTime / 10), // Use actual tokens if available
       cost: estimatedCost,
       responseTime,
       timestamp: new Date()
@@ -146,17 +175,49 @@ export class AIService {
       this.usageMetrics = this.usageMetrics.slice(-1000);
     }
 
-    // Check cost limits
-    this.checkCostLimits();
+    // Record metrics in monitoring service for admin dashboard
+    try {
+      const { MonitoringService } = await import('$lib/services/monitoring.service');
+      
+      // Record AI processing performance
+      MonitoringService.recordAIMetric(
+        responseTime,
+        provider,
+        'ai_processing',
+        { tokensUsed: metric.tokensUsed }
+      );
+
+      // Track cost data
+      MonitoringService.trackCost({
+        provider,
+        operation: 'ai_processing',
+        tokensUsed: metric.tokensUsed,
+        cost: estimatedCost
+      });
+    } catch (error) {
+      // Don't fail if monitoring service is not available
+      console.warn('Failed to record AI metrics in monitoring service:', error);
+    }
+
+    // Check cost limits only periodically to improve performance
+    if (this.usageMetrics.length % 10 === 0) {
+      this.checkCostLimits();
+    }
   }
 
-  private estimateCost(provider: AIProviderType, responseTime: number): number {
-    // Simplified cost estimation - replace with actual token counting
+  private estimateCost(provider: AIProviderType, responseTime: number, actualTokens?: number): number {
+    if (actualTokens) {
+      // More accurate cost calculation based on actual token usage
+      const costPerToken = provider === 'claude' ? 0.000003 : 0.000002; // approximate rates
+      return actualTokens * costPerToken;
+    }
+    
+    // Fallback estimation based on response time
     const baseRate = provider === 'claude' ? 0.01 : 0.008; // per request estimate
     return baseRate + (responseTime / 1000) * 0.001;
   }
 
-  private checkCostLimits() {
+  private checkCostLimits(): void {
     const now = new Date();
     const dailyCost = this.getDailyCost(now);
     const monthlyCost = this.getMonthlyCost(now);
@@ -188,22 +249,36 @@ export class AIService {
       .reduce((total, metric) => total + metric.cost, 0);
   }
 
+  private cleanupCache(): void {
+    const entriesToDelete: string[] = [];
+    this.cache.forEach((entry, key) => {
+      if (!this.isValidCacheEntry(entry)) {
+        entriesToDelete.push(key);
+      }
+    });
+    entriesToDelete.forEach(key => this.cache.delete(key));
+  }
+
   // Public API methods
   async extractFacts(prompt: string): Promise<ExtractedFacts> {
+    const cacheKey = this.getCacheKey('extractFacts', prompt);
     return this.executeWithFallback(
       (provider) => provider.extractFacts(prompt),
-      'extractFacts'
+      'extractFacts',
+      cacheKey
     );
   }
 
   async classifyMonitorType(prompt: string): Promise<MonitorType> {
+    const cacheKey = this.getCacheKey('classifyMonitorType', prompt);
     return this.executeWithFallback(
       (provider) => provider.classifyMonitorType(prompt),
-      'classifyMonitorType'
+      'classifyMonitorType',
+      cacheKey
     );
   }
 
-  async evaluateState(facts: Record<string, any>, logic: string): Promise<EvaluationResult> {
+  async evaluateState(facts: Record<string, string | number | boolean>, logic: string): Promise<EvaluationResult> {
     return this.executeWithFallback(
       (provider) => provider.evaluateState(facts, logic),
       'evaluateState'
@@ -211,8 +286,8 @@ export class AIService {
   }
 
   async evaluateChange(
-    currentValues: Record<string, any>, 
-    previousValues: Record<string, any>, 
+    currentValues: Record<string, string | number | boolean>, 
+    previousValues: Record<string, string | number | boolean>, 
     changeCondition: string
   ): Promise<ChangeResult> {
     return this.executeWithFallback(
@@ -245,13 +320,42 @@ export class AIService {
     return [...this.usageMetrics];
   }
 
-  getCostSummary() {
+  async testConnection(providerName: AIProviderType): Promise<boolean> {
+    try {
+      const provider = this.providers.get(providerName);
+      if (!provider) {
+        return false;
+      }
+
+      // Test with a simple prompt
+      await provider.extractFacts('Test connection');
+      
+      return true;
+    } catch (error) {
+      console.warn(`Connection test failed for ${providerName}:`, error);
+      return false;
+    }
+  }
+
+  getCostSummary(): { dailyCost: number; monthlyCost: number; limits: AIConfig['costLimits']; totalRequests: number } {
     const now = new Date();
     return {
       dailyCost: this.getDailyCost(now),
       monthlyCost: this.getMonthlyCost(now),
       limits: this.config.costLimits,
       totalRequests: this.usageMetrics.length
+    };
+  }
+
+  clearCache(): void {
+    this.cache.clear();
+    console.log('AI service cache cleared');
+  }
+
+  getCacheStats(): { size: number; hitRate?: number } {
+    return {
+      size: this.cache.size,
+      // Note: Would need to track cache hits/misses for hit rate calculation
     };
   }
 }

@@ -160,7 +160,8 @@ test.describe('MonitorHub - Complete Monitor Workflow', () => {
     
     await test.step('Delete monitor with confirmation', async () => {
       // Ensure at least one monitor exists
-      await expect(page.locator('[data-testid="monitor-card"]')).toHaveCount.atLeast(1);
+      const monitorCount = await page.locator('[data-testid="monitor-card"]').count();
+      expect(monitorCount).toBeGreaterThanOrEqual(1);
       
       const initialCount = await page.locator('[data-testid="monitor-card"]').count();
       

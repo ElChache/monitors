@@ -102,7 +102,7 @@ export class ClaudeProvider implements AIProvider {
     }
   }
 
-  async evaluateState(facts: Record<string, any>, logic: string): Promise<EvaluationResult> {
+  async evaluateState(facts: Record<string, string | number | boolean>, logic: string): Promise<EvaluationResult> {
     const systemPrompt = `Evaluate the current state of a monitor based on fact values and logic expression.
     
     Given:
@@ -146,8 +146,8 @@ export class ClaudeProvider implements AIProvider {
   }
 
   async evaluateChange(
-    currentValues: Record<string, any>, 
-    previousValues: Record<string, any>, 
+    currentValues: Record<string, string | number | boolean>, 
+    previousValues: Record<string, string | number | boolean>, 
     changeCondition: string
   ): Promise<ChangeResult> {
     const systemPrompt = `Evaluate whether a significant change has occurred based on current and previous values.

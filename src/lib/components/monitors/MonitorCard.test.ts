@@ -3,7 +3,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import { tick } from 'svelte';
+import '@testing-library/jest-dom';
 import MonitorCard from './MonitorCard.svelte';
 import type { Monitor, MonitorEvaluation } from '$lib/types/monitor';
 
@@ -206,10 +206,7 @@ describe('MonitorCard Component', () => {
     });
 
     it('should show never evaluated status for monitor without evaluations', () => {
-      const monitorWithoutEval = {
-        ...mockCurrentStateMonitor,
-        lastEvaluation: undefined
-      };
+      const { lastEvaluation, ...monitorWithoutEval } = mockCurrentStateMonitor;
 
       render(MonitorCard, {
         props: { monitor: monitorWithoutEval }
@@ -441,10 +438,7 @@ describe('MonitorCard Component', () => {
     });
 
     it('should not show last evaluation date when no evaluation exists', () => {
-      const monitorWithoutEval = {
-        ...mockCurrentStateMonitor,
-        lastEvaluation: undefined
-      };
+      const { lastEvaluation, ...monitorWithoutEval } = mockCurrentStateMonitor;
 
       render(MonitorCard, {
         props: { monitor: monitorWithoutEval }
@@ -490,10 +484,7 @@ describe('MonitorCard Component', () => {
     });
 
     it('should handle monitor with undefined facts', () => {
-      const monitorWithUndefinedFacts = {
-        ...mockCurrentStateMonitor,
-        facts: undefined
-      };
+      const { facts, ...monitorWithUndefinedFacts } = mockCurrentStateMonitor;
 
       const { container } = render(MonitorCard, {
         props: { monitor: monitorWithUndefinedFacts }

@@ -23,7 +23,7 @@ export interface EvaluationResult {
   result: boolean;
   confidence: number;
   reasoning: string;
-  factValues: Record<string, any>;
+  factValues: Record<string, string | number | boolean>;
 }
 
 export interface ChangeResult {
@@ -31,7 +31,7 @@ export interface ChangeResult {
   significance: number;
   confidence: number;
   reasoning: string;
-  changeDetails: Record<string, any>;
+  changeDetails: Record<string, string | number | boolean>;
 }
 
 export interface AIUsageMetrics {
@@ -45,10 +45,10 @@ export interface AIUsageMetrics {
 export interface AIProvider {
   extractFacts(prompt: string): Promise<ExtractedFacts>;
   classifyMonitorType(prompt: string): Promise<MonitorType>;
-  evaluateState(facts: Record<string, any>, logic: string): Promise<EvaluationResult>;
+  evaluateState(facts: Record<string, string | number | boolean>, logic: string): Promise<EvaluationResult>;
   evaluateChange(
-    currentValues: Record<string, any>, 
-    previousValues: Record<string, any>, 
+    currentValues: Record<string, string | number | boolean>, 
+    previousValues: Record<string, string | number | boolean>, 
     changeCondition: string
   ): Promise<ChangeResult>;
   optimizeFrequency(monitorType: string, facts: string[]): Promise<number>;
