@@ -1,0 +1,212 @@
+// MonitorHub Database Schema
+// Implementation of system architecture specification
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users and Authentication
+model User {
+  id            String   @id @default(uuid()) @db.Uuid
+  email         String   @unique @db.VarChar(255)
+  passwordHash  String?  @map("password_hash") @db.VarChar(255)
+  googleId      String?  @map("google_id") @db.VarChar(255)
+  name          String   @db.VarChar(255)
+  isActive      Boolean  @default(true) @map("is_active")
+  isAdmin       Boolean  @default(false) @map("is_admin")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  monitors Monitor[]
+  accounts Account[]
+  sessions Session[]
+
+  @@map("users")
+}
+
+// Auth.js required tables
+model Account {
+  id                String  @id @default(uuid()) @db.Uuid
+  userId            String  @map("user_id") @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.Uuid
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// Monitor Definitions
+model Monitor {
+  id                       String    @id @default(uuid()) @db.Uuid
+  userId                   String    @map("user_id") @db.Uuid
+  name                     String    @db.VarChar(255)
+  description              String?   @db.Text
+  naturalLanguagePrompt    String    @map("natural_language_prompt") @db.Text
+  monitorType              String    @map("monitor_type") @db.VarChar(50)
+  isActive                 Boolean   @default(true) @map("is_active")
+  evaluationFrequencyMins  Int       @default(60) @map("evaluation_frequency_minutes")
+  createdAt                DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt                DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  facts        MonitorFact[]
+  logic        MonitorLogic[]
+  evaluations  MonitorEvaluation[]
+  actions      MonitorAction[]
+
+  @@index([userId])
+  @@index([isActive])
+  @@map("monitors")
+}
+
+// Individual Facts within Monitors
+model MonitorFact {
+  id               String    @id @default(uuid()) @db.Uuid
+  monitorId        String    @map("monitor_id") @db.Uuid
+  factName         String    @map("fact_name") @db.VarChar(255)
+  factPrompt       String    @map("fact_prompt") @db.Text
+  dataSourceType   String?   @map("data_source_type") @db.VarChar(100)
+  dataSourceConfig Json?     @map("data_source_config") @db.JsonB
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  monitor    Monitor     @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  factValues FactValue[]
+
+  @@index([monitorId])
+  @@map("monitor_facts")
+}
+
+// Combination Logic for Multi-Fact Monitors
+model MonitorLogic {
+  id              String   @id @default(uuid()) @db.Uuid
+  monitorId       String   @map("monitor_id") @db.Uuid
+  logicExpression String   @map("logic_expression") @db.Text
+  evaluationType  String   @map("evaluation_type") @db.VarChar(50)
+  changeCondition String?  @map("change_condition") @db.Text
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  monitor Monitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  @@map("monitor_logic")
+}
+
+// Historical Fact Values (CRITICAL for Temporal Logic)
+model FactValue {
+  id              String    @id @default(uuid()) @db.Uuid
+  monitorFactId   String    @map("monitor_fact_id") @db.Uuid
+  valueText       String?   @map("value_text") @db.Text
+  valueNumeric    Decimal?  @map("value_numeric") @db.Decimal(20, 8)
+  valueBoolean    Boolean?  @map("value_boolean")
+  valueJson       Json?     @map("value_json") @db.JsonB
+  extractedAt     DateTime  @map("extracted_at") @db.Timestamptz
+  aiProvider      String?   @map("ai_provider") @db.VarChar(50)
+  processingTimeMs Int?     @map("processing_time_ms")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  monitorFact MonitorFact @relation(fields: [monitorFactId], references: [id], onDelete: Cascade)
+
+  @@index([monitorFactId])
+  @@index([extractedAt(sort: Desc)])
+  @@map("fact_values")
+}
+
+// Monitor Evaluation Results
+model MonitorEvaluation {
+  id                String     @id @default(uuid()) @db.Uuid
+  monitorId         String     @map("monitor_id") @db.Uuid
+  evaluationResult  Boolean    @map("evaluation_result")
+  previousResult    Boolean?   @map("previous_result")
+  stateChanged      Boolean    @default(false) @map("state_changed")
+  factValues        Json       @map("fact_values") @db.JsonB
+  aiReasoning       String?    @map("ai_reasoning") @db.Text
+  evaluationTimeMs  Int?       @map("evaluation_time_ms")
+  evaluatedAt       DateTime   @default(now()) @map("evaluated_at") @db.Timestamptz
+
+  // Relations
+  monitor          Monitor           @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  actionExecutions ActionExecution[]
+
+  @@index([monitorId])
+  @@index([evaluatedAt(sort: Desc)])
+  @@map("monitor_evaluations")
+}
+
+// Actions and Notifications
+model MonitorAction {
+  id                      String   @id @default(uuid()) @db.Uuid
+  monitorId               String   @map("monitor_id") @db.Uuid
+  actionType              String   @map("action_type") @db.VarChar(50)
+  triggerCondition        String   @map("trigger_condition") @db.VarChar(50)
+  frequencyOverrideMins   Int?     @map("frequency_override_minutes")
+  emailTemplate           String?  @map("email_template") @db.Text
+  isActive                Boolean  @default(true) @map("is_active")
+  createdAt               DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  monitor          Monitor           @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  actionExecutions ActionExecution[]
+
+  @@map("monitor_actions")
+}
+
+// Action Execution Log
+model ActionExecution {
+  id                  String     @id @default(uuid()) @db.Uuid
+  monitorActionId     String     @map("monitor_action_id") @db.Uuid
+  monitorEvaluationId String     @map("monitor_evaluation_id") @db.Uuid
+  executionStatus     String     @map("execution_status") @db.VarChar(50)
+  emailDeliveredAt    DateTime?  @map("email_delivered_at") @db.Timestamptz
+  errorMessage        String?    @map("error_message") @db.Text
+  executedAt          DateTime   @default(now()) @map("executed_at") @db.Timestamptz
+
+  // Relations
+  monitorAction     MonitorAction     @relation(fields: [monitorActionId], references: [id], onDelete: Cascade)
+  monitorEvaluation MonitorEvaluation @relation(fields: [monitorEvaluationId], references: [id])
+
+  @@index([executionStatus])
+  @@map("action_executions")
+}
+
+// Monitor Templates
+model MonitorTemplate {
+  id              String   @id @default(uuid()) @db.Uuid
+  name            String   @db.VarChar(255)
+  description     String?  @db.Text
+  category        String   @map("category") @db.VarChar(100)
+  templatePrompt  String   @map("template_prompt") @db.Text
+  isCombination   Boolean  @default(false) @map("is_combination")
+  complexityLevel String   @default("beginner") @map("complexity_level") @db.VarChar(50)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("monitor_templates")
+}
